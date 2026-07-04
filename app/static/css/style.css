@@ -7859,3 +7859,383 @@ button#themeToggle.theme-toggle,
         grid-template-columns: 1fr !important;
     }
 }
+
+
+/* =========================================================
+   V32 MOBILE POLISH
+   - mobil navbar çok dik uzamasın
+   - hero mobilde daha yayvan/kompakt dursun
+   - footer mobilde uzun liste gibi akmasın
+   ========================================================= */
+
+@media (max-width: 760px) {
+    html,
+    body {
+        overflow-x: hidden !important;
+    }
+
+    body {
+        -webkit-text-size-adjust: 100% !important;
+    }
+
+    .shell {
+        width: min(100% - 24px, 1180px) !important;
+        margin-top: 12px !important;
+    }
+
+    /* NAVBAR: 3 satır yerine marka + yatay kayan tek menü */
+    .topbar {
+        position: sticky !important;
+        top: 10px !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        padding: 14px !important;
+        border-radius: 22px !important;
+        overflow: hidden !important;
+    }
+
+    .topbar .brand {
+        width: 100% !important;
+        min-width: 0 !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        font-size: 1.03rem !important;
+        line-height: 1 !important;
+    }
+
+    .topbar .brand-mark,
+    .topbar .brand-logo {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        border-radius: 10px !important;
+    }
+
+    .topbar .nav-links {
+        order: initial !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        gap: 8px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding: 0 2px 4px !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .topbar .nav-links::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .topbar .nav-links a {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+        padding: 9px 12px !important;
+        border-radius: 999px !important;
+        font-size: .76rem !important;
+        line-height: 1 !important;
+        letter-spacing: .105em !important;
+        background: rgba(255,255,255,.035) !important;
+        border: 1px solid rgba(255,255,255,.07) !important;
+    }
+
+    [data-theme="light"] .topbar .nav-links a {
+        background: rgba(17,18,18,.045) !important;
+        border-color: rgba(17,18,18,.09) !important;
+    }
+
+    /* HERO: çok aşağı uzayan yapı kısaltıldı */
+    .arik-hero {
+        min-height: auto !important;
+        display: block !important;
+        margin-top: 14px !important;
+        padding: 58px 18px 34px !important;
+        border-radius: 22px !important;
+        overflow: hidden !important;
+    }
+
+    .arik-hero-topline {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        display: block !important;
+        text-align: center !important;
+        max-width: 100% !important;
+        margin: 0 auto 48px !important;
+        font-size: .66rem !important;
+        line-height: 1.55 !important;
+        letter-spacing: .13em !important;
+    }
+
+    .arik-hero-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        text-align: center !important;
+    }
+
+    .arik-hero-content .eyebrow {
+        display: block !important;
+        font-size: .63rem !important;
+        line-height: 1.4 !important;
+        letter-spacing: .125em !important;
+        margin-bottom: 12px !important;
+    }
+
+    .arik-hero-content h1 {
+        margin: 0 0 18px !important;
+        font-size: clamp(2.55rem, 14vw, 4.35rem) !important;
+        line-height: .88 !important;
+        letter-spacing: -.082em !important;
+    }
+
+    .arik-hero-content h1 span {
+        margin-top: 5px !important;
+        line-height: .90 !important;
+        letter-spacing: -.058em !important;
+    }
+
+    .arik-hero-content p {
+        width: min(100%, 34rem) !important;
+        font-size: .92rem !important;
+        line-height: 1.64 !important;
+        margin: 0 auto !important;
+    }
+
+    .hero-mini-action {
+        margin-top: 22px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .hero-mini-action a {
+        font-size: .68rem !important;
+        letter-spacing: .09em !important;
+    }
+
+    /* Ana sayfadaki üç kartlar mobilde daha kompakt */
+    .personal-card-row {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        margin: 16px auto 46px !important;
+    }
+
+    .personal-card {
+        min-height: 0 !important;
+        padding: 18px !important;
+        border-radius: 18px !important;
+    }
+
+    .personal-card .card-no {
+        margin-bottom: 10px !important;
+    }
+
+    .personal-card h2 {
+        font-size: 1rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .personal-card p {
+        font-size: .84rem !important;
+        line-height: 1.58 !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Selected work mobilde tek kolon ve kısa boşluk */
+    .arik-work-head {
+        margin: 0 0 14px !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        align-items: start !important;
+        gap: 8px !important;
+    }
+
+    .arik-work-head h2 {
+        font-size: clamp(2rem, 11vw, 3rem) !important;
+        line-height: .96 !important;
+    }
+
+    .arik-work-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        margin-bottom: 48px !important;
+    }
+
+    .work-image {
+        height: 190px !important;
+        border-radius: 18px 18px 0 0 !important;
+    }
+
+    .work-caption {
+        min-height: 0 !important;
+        padding: 14px !important;
+        border-radius: 0 0 18px 18px !important;
+        align-items: flex-start !important;
+    }
+
+    .work-caption h3 {
+        font-size: .98rem !important;
+    }
+
+    .work-caption a {
+        font-size: .66rem !important;
+    }
+
+    /* FOOTER: mobilde liste çok uzamasın, linkler iki kolon */
+    .upgraded-footer {
+        grid-template-columns: 1fr !important;
+        gap: 22px !important;
+        padding: 22px !important;
+        margin-top: 28px !important;
+        border-radius: 22px !important;
+    }
+
+    .upgraded-footer .footer-about p {
+        max-width: 100% !important;
+        margin-top: 12px !important;
+        font-size: .90rem !important;
+        line-height: 1.55 !important;
+    }
+
+    .upgraded-footer h3 {
+        margin-bottom: 10px !important;
+        font-size: .76rem !important;
+        letter-spacing: .14em !important;
+        text-transform: uppercase !important;
+    }
+
+    .upgraded-footer .footer-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .upgraded-footer .footer-links h3 {
+        grid-column: 1 / -1 !important;
+    }
+
+    .upgraded-footer .footer-links a {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        justify-content: center !important;
+        padding: 10px 10px !important;
+        font-size: .84rem !important;
+        line-height: 1.15 !important;
+        white-space: normal !important;
+        text-align: center !important;
+        background: rgba(255,255,255,.04) !important;
+        border: 1px solid rgba(255,255,255,.07) !important;
+    }
+
+    .upgraded-footer .footer-social {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    .upgraded-footer .footer-social h3 {
+        grid-column: 1 / -1 !important;
+    }
+
+    .upgraded-footer .footer-social-link {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        display: grid !important;
+        justify-items: center !important;
+        gap: 7px !important;
+        padding: 10px 8px !important;
+        border-radius: 18px !important;
+        text-align: center !important;
+        font-size: .78rem !important;
+        line-height: 1.15 !important;
+        background: rgba(255,255,255,.04) !important;
+        border: 1px solid rgba(255,255,255,.07) !important;
+    }
+
+    .upgraded-footer .footer-social-link span {
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 13px !important;
+    }
+
+    .upgraded-footer .footer-social-link svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .upgraded-footer .text-social {
+        padding-left: 8px !important;
+    }
+
+    .upgraded-footer .footer-brand {
+        font-size: 1.05rem !important;
+    }
+
+    /* İletişim kartında uzun mail mobilde taşmasın */
+    .contact-tile-mini {
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .contact-tile-mini em {
+        display: block !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .shell {
+        width: min(100% - 18px, 1180px) !important;
+    }
+
+    .topbar {
+        padding: 12px !important;
+        border-radius: 20px !important;
+    }
+
+    .topbar .nav-links a {
+        padding: 8px 10px !important;
+        font-size: .70rem !important;
+        letter-spacing: .09em !important;
+    }
+
+    .arik-hero {
+        padding: 46px 14px 28px !important;
+    }
+
+    .arik-hero-topline {
+        margin-bottom: 36px !important;
+    }
+
+    .arik-hero-content h1 {
+        font-size: clamp(2.35rem, 15vw, 3.8rem) !important;
+    }
+
+    .arik-hero-content p {
+        font-size: .88rem !important;
+        line-height: 1.58 !important;
+    }
+
+    .upgraded-footer {
+        padding: 18px !important;
+    }
+
+    .upgraded-footer .footer-social {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
