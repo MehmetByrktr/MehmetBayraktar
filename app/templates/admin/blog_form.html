@@ -1,0 +1,90 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Blog Formu | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <span class="eyebrow">Blog Yönetimi</span>
+    <h1>{{ "Blog Düzenle" if post else "Yeni Blog" }}</h1>
+</header>
+
+<form class="glass editor-form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid">
+        <div>
+            <label>Başlık</label>
+            <input type="text" name="title" value="{{ post.title if post else '' }}" required>
+        </div>
+        <div>
+            <label>Slug</label>
+            <input type="text" name="slug" value="{{ post.slug if post else '' }}" placeholder="Boş kalırsa başlıktan oluşur">
+            <small>Slug boş bırakılırsa otomatik oluşur. Aynı slug varsa sistem sonuna sayı ekler.</small>
+        </div>
+    </div>
+
+    <label>Özet</label>
+    <textarea name="summary" rows="3" required>{{ post.summary if post else '' }}</textarea>
+
+    <label>Meta Açıklama</label>
+    <textarea name="meta_description" rows="2" maxlength="260" placeholder="Google ve sosyal paylaşım açıklaması. Boş kalırsa özet kullanılır.">{{ post.meta_description if post else '' }}</textarea>
+
+    <div class="form-grid">
+        <div>
+            <label>Kategori</label>
+            <input type="text" name="category" value="{{ post.category if post else 'Genel' }}">
+        </div>
+        <div>
+            <label>Etiketler</label>
+            <input type="text" name="tags" value="{{ post.tags if post else '' }}" placeholder="Python, PLC, AI">
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div>
+            <label>Kapak Görseli</label>
+            {% if post and post.cover_image %}
+                <div class="image-preview-card">
+                    <span>Mevcut Kapak Görseli</span>
+                    <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+                    <label class="checkbox-row">
+                        <input type="checkbox" name="remove_cover_image" value="1">
+                        Kapak görselini kaldır
+                    </label>
+                </div>
+            {% endif %}
+            <input type="file" name="cover_image" accept="image/*" class="live-image-input" data-preview-target="blog-cover-preview">
+            <img id="blog-cover-preview" class="live-image-preview" alt="">
+        </div>
+        <div>
+            <label>Durum</label>
+            <select name="status">
+                <option value="draft" {% if post and post.status == 'draft' %}selected{% endif %}>Taslak</option>
+                <option value="published" {% if post and post.status == 'published' %}selected{% endif %}>Yayında</option>
+            </select>
+
+            <label class="checkbox-row featured-checkbox">
+                <input type="checkbox" name="is_featured" value="1" {% if post and post.is_featured %}checked{% endif %}>
+                Ana sayfada öne çıkar
+            </label>
+
+            {% if post %}
+                <div class="quality-box">
+                    <span>{{ post.reading_time or 1 }} dk okuma</span>
+                    <span>{{ post.view_count or 0 }} görüntülenme</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <label>İçerik</label>
+    <textarea class="rich-editor" name="content" rows="14" required>{{ post.content if post else '' }}</textarea>
+    <small>Zengin editör aktif. İstersen HTML kaynak modunu açıp doğrudan HTML de düzenleyebilirsin.</small>
+
+    <div class="form-actions">
+        <button class="btn primary" type="submit">Kaydet</button>
+        {% if post %}
+            <a class="btn ghost" href="{{ url_for('admin.blog_preview', post_id=post.id) }}" target="_blank">Önizle</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

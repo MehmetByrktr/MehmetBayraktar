@@ -1,0 +1,39 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Hesap / Şifre | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <div class="admin-title-block">
+        <span class="eyebrow">Güvenlik</span>
+        <h1>Hesap / Şifre</h1>
+    </div>
+    <p>Yayına çıkmadan önce admin şifreni güçlü bir şifreyle değiştir.</p>
+</header>
+
+<form class="glass editor-form account-form" method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+    <div class="settings-section">
+        <div>
+            <span class="eyebrow">Admin</span>
+            <h2>Şifre Değiştir</h2>
+        </div>
+
+        <label>Mevcut Şifre</label>
+        <input type="password" name="current_password" required autocomplete="current-password">
+
+        <label>Yeni Şifre</label>
+        <input type="password" name="new_password" required minlength="10" autocomplete="new-password">
+        <small>En az 10 karakter kullan. Harf, sayı ve sembol karışımı önerilir.</small>
+
+        <label>Yeni Şifre Tekrar</label>
+        <input type="password" name="new_password_repeat" required minlength="10" autocomplete="new-password">
+    </div>
+
+    <div class="form-actions">
+        <button class="btn primary" type="submit">Şifreyi Güncelle</button>
+        <a class="btn ghost" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+    </div>
+</form>
+{% endblock %}

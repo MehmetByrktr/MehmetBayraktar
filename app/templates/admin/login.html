@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Giriş | Mühendisim</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="arik-admin-theme">
+    <div class="ambient-bg" aria-hidden="true">
+        <span class="starfield starfield-far"></span>
+        <span class="starfield starfield-mid"></span>
+        <span class="starfield starfield-near"></span>
+        <span class="orb orb-one"></span>
+        <span class="orb orb-two"></span>
+        <span class="orb orb-three"></span>
+        <span class="shooting-star shooting-star-one"></span>
+        <span class="shooting-star shooting-star-two"></span>
+        <span class="shooting-star shooting-star-three"></span>
+    </div>
+
+    <main class="login-wrap">
+        <form class="glass login-card" method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <span class="eyebrow">Mühendisim Admin</span>
+            <h1>Giriş Yap</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <label>Kullanıcı adı</label>
+            <input type="text" name="username" required>
+
+            <label>Şifre</label>
+            <input type="password" name="password" required>
+
+            <button class="btn primary" type="submit">Giriş</button>
+        </form>
+    </main>
+</body>
+</html>

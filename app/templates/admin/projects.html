@@ -1,0 +1,97 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Projeler | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <div>
+        <span class="eyebrow">Proje Yönetimi</span>
+        <h1>Projeler</h1>
+    </div>
+    <a class="btn primary" href="{{ url_for('admin.project_new') }}">Yeni Proje</a>
+</header>
+
+<form class="glass admin-filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Başlık, özet, teknoloji ara...">
+    <select name="tech">
+        <option value="">Tüm teknolojiler</option>
+        {% for tech in technologies %}
+            <option value="{{ tech }}" {% if selected_tech == tech %}selected{% endif %}>{{ tech }}</option>
+        {% endfor %}
+    </select>
+    <select name="status">
+        <option value="">Tüm durumlar</option>
+        <option value="published" {% if selected_status == "published" %}selected{% endif %}>Yayında</option>
+        <option value="draft" {% if selected_status == "draft" %}selected{% endif %}>Taslak</option>
+    </select>
+    <button class="btn primary" type="submit">Filtrele</button>
+    {% if q or selected_tech or selected_status %}
+        <a class="btn ghost" href="{{ url_for('admin.projects') }}">Sıfırla</a>
+    {% endif %}
+</form>
+
+<section class="admin-panel glass">
+    <div class="table-wrap admin-table-wrap">
+        <table class="admin-table compact-actions-table">
+            <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Teknolojiler</th>
+                    <th>Durum</th>
+                    <th>Oluşturma</th>
+                    <th>Güncelleme</th>
+                    <th class="action-col">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                    <tr>
+                        <td class="title-cell">
+                            <div>{{ project.title }}</div>
+                            <div class="row-submeta">
+                                {% if project.is_featured %}<span>Öne çıkan</span>{% endif %}
+                                <span>{{ project.reading_time or 1 }} dk</span>
+                                <span>{{ project.view_count or 0 }} görüntülenme</span>
+                                <span>{{ project.like_count or 0 }} beğeni</span>
+                            </div>
+                        </td>
+                        <td>{{ project.technologies }}</td>
+                        <td>
+                            <span class="status-badge {{ project.status }}">
+                                {{ "Yayında" if project.status == "published" else "Taslak" }}
+                            </span>
+                        </td>
+                        <td>{{ project.created_at.strftime("%d.%m.%Y") }}</td>
+                        <td>{{ project.updated_at.strftime("%d.%m.%Y %H:%M") }}</td>
+                        <td class="action-cell">
+                            <div class="action-cluster">
+                                <a class="mini-action neutral" href="{{ url_for('admin.project_preview', project_id=project.id) }}" target="_blank">Önizle</a>
+                                <a class="mini-action neutral" href="{{ url_for('admin.project_edit', project_id=project.id) }}">Düzenle</a>
+
+                                <form method="post" action="{{ url_for('admin.project_toggle_status', project_id=project.id) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="mini-action {{ 'warning' if project.status == 'published' else 'success' }}" type="submit">
+                                        {{ "Taslağa Al" if project.status == "published" else "Yayınla" }}
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{{ url_for('admin.project_duplicate', project_id=project.id) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="mini-action neutral" type="submit">Kopyala</button>
+                                </form>
+
+                                <form method="post" action="{{ url_for('admin.project_delete', project_id=project.id) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="mini-action danger" type="submit" data-confirm="Bu projeyi silmek istediğine emin misin?">Sil</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6">Henüz proje yok.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | {{ site.site_name }}{% endblock %}
+{% block meta_description %}{{ (post.meta_description or post.summary)|striptags|truncate(155) }}{% endblock %}
+{% block og_title %}{{ post.title }} | {{ site.site_name }}{% endblock %}
+{% block og_description %}{{ (post.meta_description or post.summary)|striptags|truncate(155) }}{% endblock %}
+{% block og_type %}article{% endblock %}
+
+{% block content %}
+<article class="detail glass">
+    <span class="eyebrow">{{ post.category }} • {{ post.created_at.strftime("%d.%m.%Y") }}</span>
+    <h1>{{ post.title }}</h1>
+    <div class="detail-meta-row">
+        <span>{{ post.reading_time or 1 }} dk okuma</span>
+        <span>{{ post.view_count or 0 }} görüntülenme</span>
+        <span><span data-like-count>{{ post.like_count or 0 }}</span> beğeni</span>
+        {% if post.is_featured %}
+            <span>Öne çıkan</span>
+        {% endif %}
+    </div>
+    <p class="lead">{{ post.summary }}</p>
+
+    {% if post.cover_image %}
+        <img class="detail-cover" src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+    {% endif %}
+
+    <div class="content-action-row">
+        <button class="like-button {% if is_liked %}liked{% endif %}" data-like-url="{{ url_for('main.blog_like', slug=post.slug) }}">
+            {% if is_liked %}Beğenildi{% else %}Beğen{% endif %} <span data-like-count>{{ post.like_count or 0 }}</span>
+        </button>
+    </div>
+
+    <aside class="toc-box glass" data-toc>
+        <div class="toc-title">İçindekiler</div>
+        <nav data-toc-list></nav>
+    </aside>
+
+    <div class="rich-content article-content">
+        {{ post.content|safe }}
+    </div>
+</article>
+{% endblock %}

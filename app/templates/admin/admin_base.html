@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Admin | Mühendisim{% endblock %}</title>
+    {% if site.favicon_image %}
+    <link rel="icon" href="{{ url_for('static', filename=site.favicon_image) }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="arik-admin-theme">
+    <div class="ambient-bg" aria-hidden="true">
+        <span class="starfield starfield-far"></span>
+        <span class="starfield starfield-mid"></span>
+        <span class="starfield starfield-near"></span>
+        <span class="orb orb-one"></span>
+        <span class="orb orb-two"></span>
+        <span class="orb orb-three"></span>
+        <span class="shooting-star shooting-star-one"></span>
+        <span class="shooting-star shooting-star-two"></span>
+        <span class="shooting-star shooting-star-three"></span>
+    </div>
+
+    <main class="admin-shell">
+        <aside class="admin-sidebar glass">
+            <div class="admin-brand-row">
+                <a class="brand admin-brand" href="{{ url_for('admin.dashboard') }}">
+                    {% if site.site_logo %}
+                        <img class="brand-logo" src="{{ url_for('static', filename=site.site_logo) }}" alt="{{ site.site_name }}">
+                    {% else %}
+                        <span class="brand-mark">{{ site.brand_initial }}</span>
+                    {% endif %}
+                    <span>Admin</span>
+                </a>
+                <button id="themeToggle" class="theme-toggle admin-theme-toggle" type="button" title="Tema değiştir" aria-label="Tema değiştir">
+                    <span class="toggle-track"><span class="toggle-dot"></span></span>
+                </button>
+            </div>
+            <nav>
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.blogs') }}">Bloglar</a>
+                <a href="{{ url_for('admin.projects') }}">Projeler</a>
+                <a href="{{ url_for('admin.messages') }}">Mesajlar{% if unread_message_count %}<span class="message-dot">{{ unread_message_count }}</span>{% endif %}</a>
+                <a class="settings-link" href="{{ url_for('admin.settings') }}">Site Ayarları</a>
+                <a href="{{ url_for('admin.account') }}">Hesap / Şifre</a>
+                <a href="{{ url_for('main.home') }}">Siteye Dön</a>
+                <a class="logout-link" href="{{ url_for('admin.logout') }}">Çıkış</a>
+            </nav>
+        </aside>
+
+        <section class="admin-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-wrap">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/rich-editor.js') }}"></script>
+</body>
+</html>

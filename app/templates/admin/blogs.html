@@ -1,0 +1,97 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Bloglar | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <div>
+        <span class="eyebrow">İçerik Yönetimi</span>
+        <h1>Bloglar</h1>
+    </div>
+    <a class="btn primary" href="{{ url_for('admin.blog_new') }}">Yeni Blog</a>
+</header>
+
+<form class="glass admin-filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Başlık, özet, etiket ara...">
+    <select name="category">
+        <option value="">Tüm kategoriler</option>
+        {% for category in categories %}
+            <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+    </select>
+    <select name="status">
+        <option value="">Tüm durumlar</option>
+        <option value="published" {% if selected_status == "published" %}selected{% endif %}>Yayında</option>
+        <option value="draft" {% if selected_status == "draft" %}selected{% endif %}>Taslak</option>
+    </select>
+    <button class="btn primary" type="submit">Filtrele</button>
+    {% if q or selected_category or selected_status %}
+        <a class="btn ghost" href="{{ url_for('admin.blogs') }}">Sıfırla</a>
+    {% endif %}
+</form>
+
+<section class="admin-panel glass">
+    <div class="table-wrap admin-table-wrap">
+        <table class="admin-table compact-actions-table">
+            <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Kategori</th>
+                    <th>Durum</th>
+                    <th>Oluşturma</th>
+                    <th>Güncelleme</th>
+                    <th class="action-col">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td class="title-cell">
+                            <div>{{ post.title }}</div>
+                            <div class="row-submeta">
+                                {% if post.is_featured %}<span>Öne çıkan</span>{% endif %}
+                                <span>{{ post.reading_time or 1 }} dk</span>
+                                <span>{{ post.view_count or 0 }} görüntülenme</span>
+                                <span>{{ post.like_count or 0 }} beğeni</span>
+                            </div>
+                        </td>
+                        <td>{{ post.category }}</td>
+                        <td>
+                            <span class="status-badge {{ post.status }}">
+                                {{ "Yayında" if post.status == "published" else "Taslak" }}
+                            </span>
+                        </td>
+                        <td>{{ post.created_at.strftime("%d.%m.%Y") }}</td>
+                        <td>{{ post.updated_at.strftime("%d.%m.%Y %H:%M") }}</td>
+                        <td class="action-cell">
+                            <div class="action-cluster">
+                                <a class="mini-action neutral" href="{{ url_for('admin.blog_preview', post_id=post.id) }}" target="_blank">Önizle</a>
+                                <a class="mini-action neutral" href="{{ url_for('admin.blog_edit', post_id=post.id) }}">Düzenle</a>
+
+                                <form method="post" action="{{ url_for('admin.blog_toggle_status', post_id=post.id) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="mini-action {{ 'warning' if post.status == 'published' else 'success' }}" type="submit">
+                                        {{ "Taslağa Al" if post.status == "published" else "Yayınla" }}
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{{ url_for('admin.blog_duplicate', post_id=post.id) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="mini-action neutral" type="submit">Kopyala</button>
+                                </form>
+
+                                <form method="post" action="{{ url_for('admin.blog_delete', post_id=post.id) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="mini-action danger" type="submit" data-confirm="Bu blog yazısını silmek istediğine emin misin?">Sil</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6">Henüz blog yok.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

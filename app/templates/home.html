@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site.site_name }} | Ana Sayfa{% endblock %}
+
+{% block content %}
+<section class="arik-hero">
+    <div class="arik-hero-topline">Portfolio / Engineering Notes</div>
+
+    <div class="arik-portrait" aria-hidden="true">
+        <span class="portrait-glow"></span>
+        <span class="portrait-head"></span>
+        <span class="portrait-body"></span>
+    </div>
+
+    <div class="arik-hero-content">
+        <span class="eyebrow">{{ site.hero_eyebrow }}</span>
+        <h1>
+            {{ site.owner_name or "Mehmet" }}
+            <span>Mühendis &amp; Developer</span>
+        </h1>
+        <p>{{ site.hero_subtitle }}</p>
+
+        <div class="hero-mini-action">
+            <a href="{{ url_for('main.project_list') }}">
+                <span>↓</span>
+                Projelerimi gör
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="personal-card-row">
+    <article class="personal-card">
+        <span class="card-no">01</span>
+        <h2>Mekatronik Odaklı</h2>
+        <p>{{ site.about_intro }}</p>
+        <a href="{{ url_for('main.about') }}">Hakkımda →</a>
+    </article>
+
+    <article class="personal-card">
+        <span class="card-no">02</span>
+        <h2>Yazılım & Otomasyon</h2>
+        <p>PLC, HMI, gömülü sistemler, Python, Flutter ve yapay zekâ destekli mühendislik uygulamaları üzerine çalışıyorum.</p>
+        <a href="{{ url_for('main.project_list') }}">Projeler →</a>
+    </article>
+
+    <article class="personal-card">
+        <span class="card-no">03</span>
+        <h2>Teknik Not Arşivi</h2>
+        <p>Öğrendiğim teknik konuları blog yazıları, proje günlükleri ve pratik mühendislik notları olarak düzenliyorum.</p>
+        <a href="{{ url_for('main.blog_list') }}">Blog →</a>
+    </article>
+</section>
+
+<section class="arik-work-head">
+    <div>
+        <span class="eyebrow">Selected Work</span>
+        <h2>Son paylaşılan bloglar</h2>
+    </div>
+    <a href="{{ url_for('main.blog_list') }}">Tüm bloglar →</a>
+</section>
+
+<div class="arik-work-grid">
+    {% for post in latest_blogs %}
+        <article class="arik-work-card {% if post.cover_image %}has-image{% endif %}">
+            <a class="work-image" href="{{ url_for('main.blog_detail', slug=post.slug) }}"
+               {% if post.cover_image %}
+               style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ url_for('static', filename=post.cover_image) }}');"
+               {% endif %}>
+                <span>{{ post.category }}</span>
+            </a>
+            <div class="work-caption">
+                <div>
+                    <span class="work-type">Blog</span>
+                    <h3>{{ post.title }}</h3>
+                </div>
+                <a href="{{ url_for('main.blog_detail', slug=post.slug) }}">Devamını oku →</a>
+            </div>
+        </article>
+    {% else %}
+        <article class="arik-empty-card">
+            <h3>Henüz blog yok</h3>
+            <p>Admin panelinden ilk blog yazını ekleyebilirsin.</p>
+        </article>
+    {% endfor %}
+</div>
+
+<section class="arik-work-head projects-head">
+    <div>
+        <span class="eyebrow">Selected Work</span>
+        <h2>Son paylaşılan projeler</h2>
+    </div>
+    <a href="{{ url_for('main.project_list') }}">Tüm projeler →</a>
+</section>
+
+<div class="arik-work-grid project-work-grid">
+    {% for project in latest_projects %}
+        <article class="arik-work-card {% if project.cover_image %}has-image{% endif %}">
+            <a class="work-image project-image" href="{{ url_for('main.project_detail', slug=project.slug) }}"
+               {% if project.cover_image %}
+               style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ url_for('static', filename=project.cover_image) }}');"
+               {% endif %}>
+                <span>Project</span>
+            </a>
+            <div class="work-caption">
+                <div>
+                    <span class="work-type">Project</span>
+                    <h3>{{ project.title }}</h3>
+                </div>
+                <a href="{{ url_for('main.project_detail', slug=project.slug) }}">Projeyi incele →</a>
+            </div>
+        </article>
+    {% else %}
+        <article class="arik-empty-card">
+            <h3>Henüz proje yok</h3>
+            <p>Admin panelinden ilk projeni ekleyebilirsin.</p>
+        </article>
+    {% endfor %}
+</div>
+{% endblock %}

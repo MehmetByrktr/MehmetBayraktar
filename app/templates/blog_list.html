@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Blog | Mühendisim{% endblock %}
+
+{% block content %}
+<header class="page-header glass">
+    <span class="eyebrow">Teknik Notlar</span>
+    <h1>Blog Yazıları</h1>
+    <p>Gömülü sistemler, otomasyon, yapay zekâ, yazılım ve mühendislik öğrenme notları.</p>
+</header>
+
+<form class="glass filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Blog ara...">
+    <select name="category">
+        <option value="">Tüm kategoriler</option>
+        {% for category in categories %}
+            <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn primary" type="submit">Filtrele</button>
+    {% if q or selected_category %}
+        <a class="btn ghost" href="{{ url_for('main.blog_list') }}">Sıfırla</a>
+    {% endif %}
+</form>
+
+<div class="card-grid">
+    {% for post in posts %}
+        <article class="content-card glass">
+            <div class="card-image soft-gradient {% if post.cover_image %}image-cover{% endif %}"
+                 {% if post.cover_image %}
+                 style="background-image: linear-gradient(180deg, rgba(5,12,23,.10), rgba(5,12,23,.35)), url('{{ url_for('static', filename=post.cover_image) }}');"
+                 {% endif %}>
+                <span>{{ post.category }}</span>
+            </div>
+            <div class="card-body">
+                <span class="date">{{ post.created_at.strftime("%d.%m.%Y") }}</span>
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.summary }}</p>
+                <div class="tag-row small">
+                    {% for tag in post.tags.split(",") %}
+                        {% if tag.strip() %}
+                            <span>{{ tag.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('main.blog_detail', slug=post.slug) }}">Devamını oku →</a>
+            </div>
+        </article>
+    {% else %}
+        <div class="empty-state glass">
+            <h2>Sonuç bulunamadı</h2>
+            <p>Arama veya kategori filtresini değiştirerek tekrar deneyebilirsin.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

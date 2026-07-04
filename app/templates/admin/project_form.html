@@ -1,0 +1,92 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Proje Formu | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <span class="eyebrow">Proje Yönetimi</span>
+    <h1>{{ "Proje Düzenle" if project else "Yeni Proje" }}</h1>
+</header>
+
+<form class="glass editor-form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid">
+        <div>
+            <label>Başlık</label>
+            <input type="text" name="title" value="{{ project.title if project else '' }}" required>
+        </div>
+        <div>
+            <label>Slug</label>
+            <input type="text" name="slug" value="{{ project.slug if project else '' }}" placeholder="Boş kalırsa başlıktan oluşur">
+            <small>Slug boş bırakılırsa otomatik oluşur. Aynı slug varsa sistem sonuna sayı ekler.</small>
+        </div>
+    </div>
+
+    <label>Özet</label>
+    <textarea name="summary" rows="3" required>{{ project.summary if project else '' }}</textarea>
+
+    <label>Meta Açıklama</label>
+    <textarea name="meta_description" rows="2" maxlength="260" placeholder="Google ve sosyal paylaşım açıklaması. Boş kalırsa özet kullanılır.">{{ project.meta_description if project else '' }}</textarea>
+
+    <label>Teknolojiler</label>
+    <input type="text" name="technologies" value="{{ project.technologies if project else '' }}" placeholder="Python, PLC, HMI">
+
+    <div class="form-grid">
+        <div>
+            <label>GitHub Linki</label>
+            <input type="url" name="github_url" value="{{ project.github_url if project else '' }}">
+        </div>
+        <div>
+            <label>Demo Linki</label>
+            <input type="url" name="demo_url" value="{{ project.demo_url if project else '' }}">
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div>
+            <label>Kapak Görseli</label>
+            {% if project and project.cover_image %}
+                <div class="image-preview-card">
+                    <span>Mevcut Kapak Görseli</span>
+                    <img src="{{ url_for('static', filename=project.cover_image) }}" alt="{{ project.title }}">
+                    <label class="checkbox-row">
+                        <input type="checkbox" name="remove_cover_image" value="1">
+                        Kapak görselini kaldır
+                    </label>
+                </div>
+            {% endif %}
+            <input type="file" name="cover_image" accept="image/*" class="live-image-input" data-preview-target="project-cover-preview">
+            <img id="project-cover-preview" class="live-image-preview" alt="">
+        </div>
+        <div>
+            <label>Durum</label>
+            <select name="status">
+                <option value="draft" {% if project and project.status == 'draft' %}selected{% endif %}>Taslak</option>
+                <option value="published" {% if project and project.status == 'published' %}selected{% endif %}>Yayında</option>
+            </select>
+
+            <label class="checkbox-row featured-checkbox">
+                <input type="checkbox" name="is_featured" value="1" {% if project and project.is_featured %}checked{% endif %}>
+                Ana sayfada öne çıkar
+            </label>
+
+            {% if project %}
+                <div class="quality-box">
+                    <span>{{ project.reading_time or 1 }} dk okuma</span>
+                    <span>{{ project.view_count or 0 }} görüntülenme</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <label>İçerik</label>
+    <textarea class="rich-editor" name="content" rows="14" required>{{ project.content if project else '' }}</textarea>
+
+    <div class="form-actions">
+        <button class="btn primary" type="submit">Kaydet</button>
+        {% if project %}
+            <a class="btn ghost" href="{{ url_for('admin.project_preview', project_id=project.id) }}" target="_blank">Önizle</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: muhendisim
+    runtime: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn -w 2 -b 0.0.0.0:$PORT wsgi:app"
+    healthCheckPath: /
+    disk:
+      name: muhendisim-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATA_DIR
+        value: /var/data
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: DB_PATH
+        value: /var/data/site.db
+      - key: UPLOAD_URL_PREFIX
+        value: uploads
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: MAX_UPLOAD_MB
+        value: "6"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

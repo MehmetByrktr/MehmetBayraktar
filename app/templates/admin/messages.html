@@ -1,0 +1,107 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Mesajlar | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <div class="admin-title-block">
+        <span class="eyebrow">İletişim</span>
+        <h1>Mesajlar</h1>
+    </div>
+    <p>Mesajlar sen manuel olarak okundu işaretleyene kadar yeni olarak kalır. Bir mesaja tıklayarak tamamını açabilirsin.</p>
+</header>
+
+<section class="admin-panel glass messages-panel clean-messages-panel">
+    <div class="panel-title">
+        <div>
+            <span class="eyebrow">Gelen kutusu</span>
+            <h2>İletişim Mesajları</h2>
+        </div>
+        <form method="post" action="{{ url_for('admin.messages_read_all') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="btn ghost" type="submit">Tümünü Okundu Yap</button>
+        </form>
+    </div>
+
+    <div class="clean-message-list">
+        {% for msg in messages %}
+            <details class="clean-message-card {{ 'is-unread' if not msg.is_read else 'is-read' }}">
+                <summary>
+                    <span class="message-status-chip {{ 'new' if not msg.is_read else 'read' }}">
+                        {{ "Yeni" if not msg.is_read else "Okundu" }}
+                    </span>
+
+                    <span class="message-person">
+                        <strong title="{{ msg.name }}">{{ msg.name }}</strong>
+                        <em title="{{ msg.email }}">{{ msg.email }}</em>
+                    </span>
+
+                    <span class="message-topic">
+                        <strong title="{{ msg.subject }}">{{ msg.subject }}</strong>
+                        <em>{{ msg.message }}</em>
+                    </span>
+
+                    <span class="message-time">
+                        {{ msg.created_at.strftime("%d.%m.%Y") }}
+                        <em>{{ msg.created_at.strftime("%H:%M") }}</em>
+                    </span>
+
+                    <span class="message-open-label">Aç</span>
+                </summary>
+
+                <div class="clean-message-detail">
+                    <div class="message-detail-meta">
+                        <div>
+                            <span>Ad Soyad</span>
+                            <strong>{{ msg.name }}</strong>
+                        </div>
+                        <div>
+                            <span>E-posta</span>
+                            <a href="mailto:{{ msg.email }}" title="{{ msg.email }}">{{ msg.email }}</a>
+                        </div>
+                        <div>
+                            <span>Konu</span>
+                            <strong>{{ msg.subject }}</strong>
+                        </div>
+                        <div>
+                            <span>Tarih</span>
+                            <strong>{{ msg.created_at.strftime("%d.%m.%Y %H:%M") }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="message-full-box">
+                        <span>Mesajın tamamı</span>
+                        <p>{{ msg.message }}</p>
+                    </div>
+
+                    <div class="clean-message-actions">
+                        <a class="btn primary" href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject }}">E-posta ile Yanıtla</a>
+
+                        {% if not msg.is_read %}
+                            <form method="post" action="{{ url_for('admin.message_mark_read', message_id=msg.id) }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn ghost" type="submit">Okundu Yap</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ url_for('admin.message_mark_unread', message_id=msg.id) }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn ghost" type="submit">Okunmadı Yap</button>
+                            </form>
+                        {% endif %}
+
+                        <form method="post" action="{{ url_for('admin.message_delete', message_id=msg.id) }}">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn ghost danger-inline" type="submit" data-confirm="Bu mesajı silmek istediğine emin misin?">Sil</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+        {% else %}
+            <div class="admin-empty-state">
+                <h3>Henüz mesaj yok.</h3>
+                <p>İletişim formundan gelen mesajlar burada listelenecek.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

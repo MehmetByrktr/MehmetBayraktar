@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Projeler | Mühendisim{% endblock %}
+
+{% block content %}
+<header class="page-header glass">
+    <span class="eyebrow">Portfolyo</span>
+    <h1>Projeler</h1>
+    <p>PLC, yapay zekâ, gömülü sistemler, mobil uygulama ve mühendislik projelerim.</p>
+</header>
+
+<form class="glass filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Proje ara...">
+    <select name="tech">
+        <option value="">Tüm teknolojiler</option>
+        {% for tech in technologies %}
+            <option value="{{ tech }}" {% if selected_tech == tech %}selected{% endif %}>{{ tech }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn primary" type="submit">Filtrele</button>
+    {% if q or selected_tech %}
+        <a class="btn ghost" href="{{ url_for('main.project_list') }}">Sıfırla</a>
+    {% endif %}
+</form>
+
+<div class="card-grid">
+    {% for project in projects %}
+        <article class="content-card glass">
+            <div class="card-image tech-gradient {% if project.cover_image %}image-cover{% endif %}"
+                 {% if project.cover_image %}
+                 style="background-image: linear-gradient(180deg, rgba(5,12,23,.10), rgba(5,12,23,.35)), url('{{ url_for('static', filename=project.cover_image) }}');"
+                 {% endif %}>
+                <span>Project</span>
+            </div>
+            <div class="card-body">
+                <span class="date">{{ project.created_at.strftime("%d.%m.%Y") }}</span>
+                <h3>{{ project.title }}</h3>
+                <p>{{ project.summary }}</p>
+                <div class="tag-row small">
+                    {% for tag in project.technologies.split(",") %}
+                        {% if tag.strip() %}
+                            <span>{{ tag.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('main.project_detail', slug=project.slug) }}">Projeyi incele →</a>
+            </div>
+        </article>
+    {% else %}
+        <div class="empty-state glass">
+            <h2>Sonuç bulunamadı</h2>
+            <p>Arama veya teknoloji filtresini değiştirerek tekrar deneyebilirsin.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

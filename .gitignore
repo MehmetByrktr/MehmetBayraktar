@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local env/data
+.env
+instance/
+app/static/uploads/
+backups/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

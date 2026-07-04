@@ -1,0 +1,147 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Site Ayarları | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <div>
+        <span class="eyebrow">Genel Kontrol</span>
+        <h1>Site Ayarları</h1>
+    </div>
+    <a class="btn ghost" href="{{ url_for('main.home') }}">Siteyi Gör</a>
+</header>
+
+<form class="glass editor-form settings-form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <section class="settings-section">
+        <div>
+            <span class="eyebrow">Kimlik</span>
+            <h2>Marka ve genel bilgiler</h2>
+        </div>
+
+        <div class="form-grid">
+            <div>
+                <label>Site Adı</label>
+                <input type="text" name="site_name" value="{{ settings.site_name }}">
+            </div>
+            <div>
+                <label>İsim</label>
+                <input type="text" name="owner_name" value="{{ settings.owner_name }}">
+            </div>
+            <div>
+                <label>Logo Harfi</label>
+                <input type="text" name="brand_initial" value="{{ settings.brand_initial }}" maxlength="3">
+            </div>
+            <div>
+                <label>Konum</label>
+                <input type="text" name="location" value="{{ settings.location }}">
+            </div>
+            <div>
+                <label>Site Logosu</label>
+                {% if settings.site_logo %}
+                    <div class="image-preview-card compact">
+                        <img src="{{ url_for('static', filename=settings.site_logo) }}" alt="Site logosu">
+                        <label class="checkbox-row">
+                            <input type="checkbox" name="remove_site_logo" value="1">
+                            Logoyu kaldır
+                        </label>
+                    </div>
+                {% endif %}
+                <input type="file" name="site_logo_file" accept="image/*" class="live-image-input" data-preview-target="site-logo-preview">
+                <img id="site-logo-preview" class="live-image-preview compact-preview" alt="">
+            </div>
+            <div>
+                <label>Favicon</label>
+                {% if settings.favicon_image %}
+                    <div class="image-preview-card compact">
+                        <img src="{{ url_for('static', filename=settings.favicon_image) }}" alt="Favicon">
+                        <label class="checkbox-row">
+                            <input type="checkbox" name="remove_favicon_image" value="1">
+                            Faviconu kaldır
+                        </label>
+                    </div>
+                {% endif %}
+                <input type="file" name="favicon_image_file" accept="image/*" class="live-image-input" data-preview-target="favicon-preview">
+                <img id="favicon-preview" class="live-image-preview compact-preview" alt="">
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <div>
+            <span class="eyebrow">Ana Sayfa</span>
+            <h2>Hero ve kısa hakkımda</h2>
+        </div>
+
+        <label>Hero Üst Yazı</label>
+        <input type="text" name="hero_eyebrow" value="{{ settings.hero_eyebrow }}">
+
+        <label>Hero Başlık</label>
+        <textarea name="hero_title" rows="2">{{ settings.hero_title }}</textarea>
+
+        <label>Hero Açıklama</label>
+        <textarea name="hero_subtitle" rows="3">{{ settings.hero_subtitle }}</textarea>
+
+        <label>Kısa Hakkımda Başlığı</label>
+        <textarea name="short_about_title" rows="2">{{ settings.short_about_title }}</textarea>
+
+        <label>Kısa Hakkımda Metni</label>
+        <textarea name="short_about_text" rows="3">{{ settings.short_about_text }}</textarea>
+    </section>
+
+    <section class="settings-section">
+        <div>
+            <span class="eyebrow">Hakkımda</span>
+            <h2>Hakkımda sayfası</h2>
+        </div>
+
+        <label>Hakkımda Başlığı</label>
+        <input type="text" name="about_title" value="{{ settings.about_title }}">
+
+        <label>Hakkımda Giriş Metni</label>
+        <textarea name="about_intro" rows="3">{{ settings.about_intro }}</textarea>
+
+        <label>Hakkımda Detay İçeriği</label>
+        <textarea class="rich-editor" name="about_content" rows="12">{{ settings.about_content }}</textarea>
+        <small>Zengin editör aktif. İstersen HTML kaynak modunu açıp doğrudan HTML de düzenleyebilirsin.</small>
+    </section>
+
+    <section class="settings-section">
+        <div>
+            <span class="eyebrow">İletişim</span>
+            <h2>Bağlantılar ve iletişim</h2>
+        </div>
+
+        <div class="form-grid">
+            <div>
+                <label>E-posta</label>
+                <input type="email" name="email" value="{{ settings.email }}">
+            </div>
+            <div>
+                <label>GitHub Linki</label>
+                <input type="url" name="github_url" value="{{ settings.github_url }}">
+            </div>
+            <div>
+                <label>LinkedIn Linki</label>
+                <input type="url" name="linkedin_url" value="{{ settings.linkedin_url }}">
+            </div>
+            <div>
+                <label>Instagram Linki</label>
+                <input type="url" name="instagram_url" value="{{ settings.instagram_url }}">
+            </div>
+            <div>
+                <label>X / Twitter Linki</label>
+                <input type="url" name="x_url" value="{{ settings.x_url }}">
+            </div>
+        </div>
+
+        <label>İletişim Sayfası Başlığı</label>
+        <input type="text" name="contact_title" value="{{ settings.contact_title }}">
+
+        <label>İletişim Sayfası Açıklaması</label>
+        <textarea name="contact_text" rows="3">{{ settings.contact_text }}</textarea>
+    </section>
+
+    <button class="btn primary" type="submit">Ayarları Kaydet</button>
+</form>
+{% endblock %}

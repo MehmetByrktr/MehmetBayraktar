@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Çerez Politikası | {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<section class="detail glass legal-page">
+    <span class="eyebrow">Yasal</span>
+    <h1>Çerez Politikası</h1>
+    <p class="lead">Bu site temel oturum ve tercih işlevleri için sınırlı çerez kullanabilir.</p>
+
+    <div class="rich-content">
+        <h2>Zorunlu Çerezler</h2>
+        <p>Admin oturumu, güvenlik ve form doğrulama gibi zorunlu işlemler için çerez kullanılabilir.</p>
+
+        <h2>Beğeni Tercihi</h2>
+        <p>Blog ve proje beğenilerinde aynı oturumdan sınırsız beğeni yapılmasını engellemek için oturum bilgisi kullanılabilir.</p>
+
+        <h2>Analitik</h2>
+        <p>Şu anda bu pakette harici analitik entegrasyonu zorunlu değildir. Yayında Google Analytics veya benzeri bir servis eklenirse bu metin güncellenmelidir.</p>
+
+        <h2>Tarayıcı Kontrolü</h2>
+        <p>Çerezleri tarayıcı ayarlarından silebilir veya engelleyebilirsin. Ancak bazı admin ve form özellikleri çalışmayabilir.</p>
+    </div>
+</section>
+{% endblock %}

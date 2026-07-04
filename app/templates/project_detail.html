@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} | {{ site.site_name }}{% endblock %}
+{% block meta_description %}{{ (project.meta_description or project.summary)|striptags|truncate(155) }}{% endblock %}
+{% block og_title %}{{ project.title }} | {{ site.site_name }}{% endblock %}
+{% block og_description %}{{ (project.meta_description or project.summary)|striptags|truncate(155) }}{% endblock %}
+{% block og_type %}article{% endblock %}
+
+{% block content %}
+<article class="detail glass">
+    <span class="eyebrow">Proje • {{ project.created_at.strftime("%d.%m.%Y") }}</span>
+    <h1>{{ project.title }}</h1>
+    <div class="detail-meta-row">
+        <span>{{ project.reading_time or 1 }} dk okuma</span>
+        <span>{{ project.view_count or 0 }} görüntülenme</span>
+        <span><span data-like-count>{{ project.like_count or 0 }}</span> beğeni</span>
+        {% if project.is_featured %}
+            <span>Öne çıkan</span>
+        {% endif %}
+    </div>
+    <p class="lead">{{ project.summary }}</p>
+
+    <div class="tag-row">
+        {% for tag in project.technologies.split(",") %}
+            {% if tag.strip() %}
+                <span>{{ tag.strip() }}</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="project-links">
+        {% if project.github_url %}
+            <a class="btn ghost" href="{{ project.github_url }}" target="_blank">GitHub</a>
+        {% endif %}
+        {% if project.demo_url %}
+            <a class="btn primary" href="{{ project.demo_url }}" target="_blank">Demo</a>
+        {% endif %}
+    </div>
+
+    {% if project.cover_image %}
+        <img class="detail-cover" src="{{ url_for('static', filename=project.cover_image) }}" alt="{{ project.title }}">
+    {% endif %}
+
+    <div class="content-action-row">
+        <button class="like-button {% if is_liked %}liked{% endif %}" data-like-url="{{ url_for('main.project_like', slug=project.slug) }}">
+            {% if is_liked %}Beğenildi{% else %}Beğen{% endif %} <span data-like-count>{{ project.like_count or 0 }}</span>
+        </button>
+    </div>
+
+    <aside class="toc-box glass" data-toc>
+        <div class="toc-title">İçindekiler</div>
+        <nav data-toc-list></nav>
+    </aside>
+
+    <div class="rich-content article-content">
+        {{ project.content|safe }}
+    </div>
+</article>
+{% endblock %}

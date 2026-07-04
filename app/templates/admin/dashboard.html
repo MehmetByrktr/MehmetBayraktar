@@ -1,0 +1,176 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Dashboard | Admin{% endblock %}
+
+{% block content %}
+<header class="admin-header glass">
+    <div class="admin-title-block">
+        <span class="eyebrow">Kontrol Merkezi</span>
+        <h1>Dashboard</h1>
+    </div>
+    <p>Blog, proje, trafik ve etkileşim kayıtlarını buradan takip edebilirsin.</p>
+</header>
+
+<div class="stats-grid">
+    <div class="stat-card glass">
+        <span>Blog</span>
+        <strong>{{ stats.blogs }}</strong>
+    </div>
+    <div class="stat-card glass">
+        <span>Proje</span>
+        <strong>{{ stats.projects }}</strong>
+    </div>
+    <div class="stat-card glass">
+        <span>Görüntülenme</span>
+        <strong>{{ stats.total_views }}</strong>
+    </div>
+    <div class="stat-card glass">
+        <span>Beğeni</span>
+        <strong>{{ stats.total_likes }}</strong>
+    </div>
+    <div class="stat-card glass">
+        <span>Yeni Mesaj</span>
+        <strong>{{ stats.unread_messages }}</strong>
+    </div>
+</div>
+
+<section class="admin-panel glass quick-panel">
+    <div class="panel-title">
+        <div>
+            <span class="eyebrow">Kısa yollar</span>
+            <h2>Hızlı Ekle</h2>
+        </div>
+    </div>
+
+    <div class="quick-action-grid">
+        <a class="quick-action-card glass" href="{{ url_for('admin.blog_new') }}">
+            <span>+</span>
+            <strong>Blog Ekle</strong>
+            <em>Yeni teknik yazı oluştur</em>
+        </a>
+        <a class="quick-action-card glass" href="{{ url_for('admin.project_new') }}">
+            <span>+</span>
+            <strong>Proje Ekle</strong>
+            <em>Yeni proje kaydı gir</em>
+        </a>
+        <a class="quick-action-card glass" href="{{ url_for('admin.messages') }}">
+            <span>↗</span>
+            <strong>Mesajlar</strong>
+            <em>İletişim kayıtlarını gör</em>
+        </a>
+        <a class="quick-action-card glass" href="{{ url_for('admin.settings') }}">
+            <span>⚙</span>
+            <strong>Site Ayarları</strong>
+            <em>Marka ve içerik düzenle</em>
+        </a>
+    </div>
+</section>
+
+<section class="admin-panel glass">
+    <div class="panel-title">
+        <h2>İstatistik Grafikleri</h2>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>Yayın Durumu</h3>
+            <div class="bar-chart">
+                {% set status_values = chart_data['status']['values'] %}
+                {% set max_status = status_values|max if status_values|max > 0 else 1 %}
+                {% for label in chart_data['status']['labels'] %}
+                    {% set value = status_values[loop.index0] %}
+                    <div class="bar-row">
+                        <span>{{ label }}</span>
+                        <div class="bar-track"><div class="bar-fill" style="width: {{ (value / max_status * 100)|round(0) }}%"></div></div>
+                        <strong>{{ value }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Etkileşim</h3>
+            <div class="bar-chart">
+                {% set engagement_values = chart_data['engagement']['values'] %}
+                {% set max_engagement = engagement_values|max if engagement_values|max > 0 else 1 %}
+                {% for label in chart_data['engagement']['labels'] %}
+                    {% set value = engagement_values[loop.index0] %}
+                    <div class="bar-row">
+                        <span>{{ label }}</span>
+                        <div class="bar-track"><div class="bar-fill" style="width: {{ (value / max_engagement * 100)|round(0) }}%"></div></div>
+                        <strong>{{ value }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-panel glass">
+    <div class="panel-title">
+        <h2>En Çok Görüntülenenler</h2>
+    </div>
+
+    <div class="top-content-grid">
+        <div>
+            <h3>Bloglar</h3>
+            <div class="mini-rank-list">
+                {% for post in top_blogs %}
+                    <a href="{{ url_for('admin.blog_preview', post_id=post.id) }}" target="_blank">
+                        <span>{{ loop.index }}</span>
+                        <strong>{{ post.title }}</strong>
+                        <em>{{ post.view_count or 0 }} görüntülenme · {{ post.like_count or 0 }} beğeni</em>
+                    </a>
+                {% else %}
+                    <p>Henüz blog yok.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <h3>Projeler</h3>
+            <div class="mini-rank-list">
+                {% for project in top_projects %}
+                    <a href="{{ url_for('admin.project_preview', project_id=project.id) }}" target="_blank">
+                        <span>{{ loop.index }}</span>
+                        <strong>{{ project.title }}</strong>
+                        <em>{{ project.view_count or 0 }} görüntülenme · {{ project.like_count or 0 }} beğeni</em>
+                    </a>
+                {% else %}
+                    <p>Henüz proje yok.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-panel glass">
+    <div class="panel-title">
+        <h2>Son Mesajlar</h2>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ad</th>
+                    <th>E-posta</th>
+                    <th>Konu</th>
+                    <th>Tarih</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in latest_messages %}
+                    <tr>
+                        <td>{{ msg.name }}</td>
+                        <td>{{ msg.email }}</td>
+                        <td>{{ msg.subject }}</td>
+                        <td>{{ msg.created_at.strftime("%d.%m.%Y") }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">Henüz mesaj yok.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
