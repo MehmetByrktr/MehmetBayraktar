@@ -38,7 +38,7 @@
     </div>
 
     {% if project.cover_image %}
-        <img class="detail-cover" src="{{ url_for('static', filename=project.cover_image) }}" alt="{{ project.title }}">
+        <img class="detail-cover" src="{{ media_url(project.cover_image) }}" alt="{{ project.title }}">
     {% endif %}
 
     <div class="content-action-row">

@@ -65,7 +65,7 @@
         <article class="arik-work-card {% if post.cover_image %}has-image{% endif %}">
             <a class="work-image" href="{{ url_for('main.blog_detail', slug=post.slug) }}"
                {% if post.cover_image %}
-               style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ url_for('static', filename=post.cover_image) }}');"
+               style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ media_url(post.cover_image) }}');"
                {% endif %}>
                 <span>{{ post.category }}</span>
             </a>
@@ -98,7 +98,7 @@
         <article class="arik-work-card {% if project.cover_image %}has-image{% endif %}">
             <a class="work-image project-image" href="{{ url_for('main.project_detail', slug=project.slug) }}"
                {% if project.cover_image %}
-               style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ url_for('static', filename=project.cover_image) }}');"
+               style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ media_url(project.cover_image) }}');"
                {% endif %}>
                 <span>Project</span>
             </a>

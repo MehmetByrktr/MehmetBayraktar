@@ -28,7 +28,7 @@
         <article class="content-card glass">
             <div class="card-image tech-gradient {% if project.cover_image %}image-cover{% endif %}"
                  {% if project.cover_image %}
-                 style="background-image: linear-gradient(180deg, rgba(5,12,23,.10), rgba(5,12,23,.35)), url('{{ url_for('static', filename=project.cover_image) }}');"
+                 style="background-image: linear-gradient(180deg, rgba(5,12,23,.10), rgba(5,12,23,.35)), url('{{ media_url(project.cover_image) }}');"
                  {% endif %}>
                 <span>Project</span>
             </div>

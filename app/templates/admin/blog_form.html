@@ -45,7 +45,7 @@
             {% if post and post.cover_image %}
                 <div class="image-preview-card">
                     <span>Mevcut Kapak Görseli</span>
-                    <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+                    <img src="{{ media_url(post.cover_image) }}" alt="{{ post.title }}">
                     <label class="checkbox-row">
                         <input type="checkbox" name="remove_cover_image" value="1">
                         Kapak görselini kaldır

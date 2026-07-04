@@ -7859,24 +7859,3 @@ button#themeToggle.theme-toggle,
         grid-template-columns: 1fr !important;
     }
 }
-
-/* Contact kartlarında uzun mail taşmasını engelle */
-.contact-tile-mini {
-    min-width: 0 !important;
-    overflow: hidden !important;
-}
-
-.contact-tile-mini strong,
-.contact-tile-mini em,
-.contact-tile-mini a {
-    min-width: 0 !important;
-    max-width: 100% !important;
-}
-
-.contact-tile-mini em {
-    display: block !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-    line-height: 1.45 !important;
-}

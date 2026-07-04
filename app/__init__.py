@@ -2,7 +2,7 @@ import os
 import secrets
 from pathlib import Path
 
-from flask import Flask, abort, request, session, send_from_directory
+from flask import Flask, abort, request, session, send_from_directory, url_for
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from sqlalchemy import text
@@ -15,6 +15,41 @@ except Exception:
 
 from .extensions import db
 from .models import User, BlogPost, Project, SiteSetting
+
+
+
+def normalize_database_url(value):
+    """Render/Heroku tarzı postgres:// URL'lerini SQLAlchemy için normalize eder."""
+    if not value:
+        return ""
+    value = value.strip()
+    if value.startswith("postgres://"):
+        return value.replace("postgres://", "postgresql://", 1)
+    return value
+
+
+def cloudinary_is_configured():
+    return all(
+        os.environ.get(key)
+        for key in ["CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"]
+    )
+
+
+def ensure_writable_directory(path, fallback):
+    """Klasör yazılamıyorsa uygulamayı patlatmak yerine lokal fallback kullanır."""
+    path = Path(path)
+    fallback = Path(fallback)
+
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        probe = path / ".write-test"
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink(missing_ok=True)
+        return path
+    except OSError:
+        fallback.mkdir(parents=True, exist_ok=True)
+        return fallback
+
 
 
 login_manager = LoginManager()
@@ -32,19 +67,32 @@ def create_app():
 
     root_dir = Path(__file__).resolve().parent.parent
 
-    # Production persistence:
-    # Render/VPS gibi ortamlarda DATA_DIR kalıcı diske işaret eder.
-    # Lokal geliştirmede instance/ kullanılır.
-    data_dir = Path(os.environ.get("DATA_DIR", root_dir / "instance"))
-    uploads_dir = Path(os.environ.get("UPLOAD_DIR", data_dir / "uploads"))
-    db_path = Path(os.environ.get("DB_PATH", data_dir / "site.db"))
+    database_url = normalize_database_url(os.environ.get("DATABASE_URL", ""))
 
-    data_dir.mkdir(parents=True, exist_ok=True)
-    uploads_dir.mkdir(parents=True, exist_ok=True)
+    # Ücretsiz deployment mantığı:
+    # - DATABASE_URL varsa veritabanı Supabase/Neon/Railway gibi harici Postgres'te durur.
+    # - Cloudinary ayarlıysa görseller local diske yazılmaz.
+    # - Local/ücretli disk kullanımında instance/ veya DATA_DIR fallback olarak çalışır.
+    data_dir = Path(os.environ.get("DATA_DIR") or root_dir / "instance")
+    fallback_data_dir = root_dir / "instance"
+
+    if database_url:
+        db_uri = database_url
+        db_path = None
+    else:
+        data_dir = ensure_writable_directory(data_dir, fallback_data_dir)
+        db_path = Path(os.environ.get("DB_PATH") or data_dir / "site.db")
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        db_uri = f"sqlite:///{db_path}"
+
+    uploads_dir = Path(os.environ.get("UPLOAD_DIR") or data_dir / "uploads")
+    if not cloudinary_is_configured():
+        uploads_dir = ensure_writable_directory(uploads_dir, fallback_data_dir / "uploads")
 
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", f"sqlite:///{db_path}")
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
     app.config["MAX_CONTENT_LENGTH"] = int(os.environ.get("MAX_UPLOAD_MB", "6")) * 1024 * 1024
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -63,7 +111,25 @@ def create_app():
 
     @app.context_processor
     def inject_site_settings():
-        return {"site": get_site_settings(), "csrf_token": get_csrf_token}
+        return {
+            "site": get_site_settings(),
+            "csrf_token": get_csrf_token,
+            "media_url": media_url,
+        }
+
+    def media_url(value):
+        if not value:
+            return ""
+
+        value = str(value)
+        if value.startswith(("http://", "https://", "data:")):
+            return value
+
+        upload_prefix = str(app.config.get("UPLOAD_URL_PREFIX", "uploads")).strip("/")
+        if upload_prefix and value.startswith(f"{upload_prefix}/"):
+            return url_for("uploaded_file", filename=value.split("/", 1)[1])
+
+        return url_for("static", filename=value)
 
 
     def get_csrf_token():
@@ -155,8 +221,11 @@ def seed_settings():
 
 def migrate_database():
     """SQLite için basit kolon ekleme migrasyonu.
-    db.create_all mevcut tabloları değiştirmez; bu yüzden yeni SEO kolonlarını eldeki DB'ye ekliyoruz.
+    Harici Postgres/Supabase kullanımında db.create_all fresh schema için yeterli tutulur.
     """
+    if db.engine.dialect.name != "sqlite":
+        return
+
     migrations = {
         "blog_post": {
             "meta_description": "VARCHAR(260) DEFAULT ''",

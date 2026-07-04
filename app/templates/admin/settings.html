@@ -40,7 +40,7 @@
                 <label>Site Logosu</label>
                 {% if settings.site_logo %}
                     <div class="image-preview-card compact">
-                        <img src="{{ url_for('static', filename=settings.site_logo) }}" alt="Site logosu">
+                        <img src="{{ media_url(settings.site_logo) }}" alt="Site logosu">
                         <label class="checkbox-row">
                             <input type="checkbox" name="remove_site_logo" value="1">
                             Logoyu kaldır
@@ -54,7 +54,7 @@
                 <label>Favicon</label>
                 {% if settings.favicon_image %}
                     <div class="image-preview-card compact">
-                        <img src="{{ url_for('static', filename=settings.favicon_image) }}" alt="Favicon">
+                        <img src="{{ media_url(settings.favicon_image) }}" alt="Favicon">
                         <label class="checkbox-row">
                             <input type="checkbox" name="remove_favicon_image" value="1">
                             Faviconu kaldır

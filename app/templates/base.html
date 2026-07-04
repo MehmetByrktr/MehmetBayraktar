@@ -13,7 +13,7 @@
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}">
     {% if site.favicon_image %}
-    <link rel="icon" href="{{ url_for('static', filename=site.favicon_image) }}">
+    <link rel="icon" href="{{ media_url(site.favicon_image) }}">
     {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -49,7 +49,7 @@
         <nav class="topbar glass">
             <a href="{{ url_for('main.home') }}" class="brand">
                 {% if site.site_logo %}
-                    <img class="brand-logo" src="{{ url_for('static', filename=site.site_logo) }}" alt="{{ site.site_name }}">
+                    <img class="brand-logo" src="{{ media_url(site.site_logo) }}" alt="{{ site.site_name }}">
                 {% else %}
                     <span class="brand-mark">{{ site.brand_initial }}</span>
                 {% endif %}
@@ -81,7 +81,7 @@
             <div class="footer-about">
                 <a href="{{ url_for('main.home') }}" class="brand footer-brand">
                     {% if site.site_logo %}
-                        <img class="brand-logo" src="{{ url_for('static', filename=site.site_logo) }}" alt="{{ site.site_name }}">
+                        <img class="brand-logo" src="{{ media_url(site.site_logo) }}" alt="{{ site.site_name }}">
                     {% else %}
                         <span class="brand-mark">{{ site.brand_initial }}</span>
                     {% endif %}

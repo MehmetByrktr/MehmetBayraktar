@@ -48,7 +48,7 @@
             {% if project and project.cover_image %}
                 <div class="image-preview-card">
                     <span>Mevcut Kapak Görseli</span>
-                    <img src="{{ url_for('static', filename=project.cover_image) }}" alt="{{ project.title }}">
+                    <img src="{{ media_url(project.cover_image) }}" alt="{{ project.title }}">
                     <label class="checkbox-row">
                         <input type="checkbox" name="remove_cover_image" value="1">
                         Kapak görselini kaldır

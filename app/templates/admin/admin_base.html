@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Admin | Mühendisim{% endblock %}</title>
     {% if site.favicon_image %}
-    <link rel="icon" href="{{ url_for('static', filename=site.favicon_image) }}">
+    <link rel="icon" href="{{ media_url(site.favicon_image) }}">
     {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -27,7 +27,7 @@
             <div class="admin-brand-row">
                 <a class="brand admin-brand" href="{{ url_for('admin.dashboard') }}">
                     {% if site.site_logo %}
-                        <img class="brand-logo" src="{{ url_for('static', filename=site.site_logo) }}" alt="{{ site.site_name }}">
+                        <img class="brand-logo" src="{{ media_url(site.site_logo) }}" alt="{{ site.site_name }}">
                     {% else %}
                         <span class="brand-mark">{{ site.brand_initial }}</span>
                     {% endif %}

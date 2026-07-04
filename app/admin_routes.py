@@ -1,3 +1,4 @@
+import os
 from functools import wraps
 from pathlib import Path
 from time import time
@@ -30,6 +31,13 @@ def inject_admin_badges():
 
 
 
+def cloudinary_is_configured():
+    return all(
+        os.environ.get(key)
+        for key in ["CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"]
+    )
+
+
 def save_upload(file):
     if not file or not file.filename:
         return None
@@ -38,6 +46,32 @@ def save_upload(file):
     if extension not in ALLOWED_UPLOAD_EXTENSIONS:
         flash("Yalnızca JPG, PNG, WEBP veya GIF görsel yükleyebilirsin.", "danger")
         return None
+
+    if cloudinary_is_configured():
+        try:
+            import cloudinary
+            import cloudinary.uploader
+
+            cloudinary.config(
+                cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+                api_key=os.environ.get("CLOUDINARY_API_KEY"),
+                api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+                secure=True,
+            )
+
+            file.stream.seek(0)
+            result = cloudinary.uploader.upload(
+                file.stream,
+                folder=os.environ.get("CLOUDINARY_FOLDER", "muhendisim"),
+                resource_type="image",
+                overwrite=False,
+                unique_filename=True,
+            )
+            return result.get("secure_url")
+        except Exception:
+            current_app.logger.exception("Cloudinary upload failed")
+            flash("Görsel Cloudinary'ye yüklenemedi. Lütfen ayarları kontrol et.", "danger")
+            return None
 
     upload_dir = Path(current_app.config["UPLOAD_FOLDER"])
     upload_dir.mkdir(parents=True, exist_ok=True)

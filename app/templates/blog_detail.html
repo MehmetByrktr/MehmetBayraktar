@@ -21,7 +21,7 @@
     <p class="lead">{{ post.summary }}</p>
 
     {% if post.cover_image %}
-        <img class="detail-cover" src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+        <img class="detail-cover" src="{{ media_url(post.cover_image) }}" alt="{{ post.title }}">
     {% endif %}
 
     <div class="content-action-row">
