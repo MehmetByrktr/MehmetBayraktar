@@ -380,3 +380,64 @@
     display: block !important;
     margin: 16px auto !important;
 }
+
+
+/* =========================================================
+   V35 RIGHT DOCK SCROLL TOP
+   - Public theme toggle removed
+   - Right dock bottom button is now "back to top"
+   ========================================================= */
+
+.side-dock .scroll-top-button,
+.side-dock .dock-scroll-top {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 999px !important;
+    background: rgba(245,245,240,.055) !important;
+    color: rgba(245,245,240,.76) !important;
+    border: 1px solid rgba(245,245,240,.10) !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    transition: transform .18s ease, background .18s ease, color .18s ease, opacity .18s ease !important;
+    opacity: .78 !important;
+}
+
+.side-dock .scroll-top-button svg,
+.side-dock .dock-scroll-top svg {
+    width: 18px !important;
+    height: 18px !important;
+    fill: currentColor !important;
+    display: block !important;
+}
+
+.side-dock .scroll-top-button:hover,
+.side-dock .dock-scroll-top:hover,
+.side-dock .scroll-top-button.is-visible {
+    background: rgba(245,245,240,.13) !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    opacity: 1 !important;
+}
+
+.side-dock .scroll-top-button:not(.is-visible) {
+    opacity: .52 !important;
+}
+
+/* Public sayfada tema toggle kalmadı; eski toggle CSS'i görseli etkilemesin */
+body.arik-theme .dock-theme-toggle,
+body.arik-theme #themeToggle {
+    display: none !important;
+}
+
+/* Mobilde sağ dock zaten gizli; buton desktop/tablet için aktif */
+@media (max-width: 640px) {
+    .side-dock .scroll-top-button,
+    .side-dock .dock-scroll-top {
+        display: none !important;
+    }
+}

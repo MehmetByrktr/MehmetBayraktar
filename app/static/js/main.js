@@ -3,8 +3,13 @@ const root = document.documentElement;
 const storedTheme = (() => {
     try { return localStorage.getItem("theme"); } catch (e) { return null; }
 })();
-const initialTheme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
+const isAdminThemePage = document.body && document.body.classList.contains("arik-admin-theme");
+// Public sitede artık açık tema yok; admin panelde toggle korunur.
+const initialTheme = isAdminThemePage && (storedTheme === "light" || storedTheme === "dark") ? storedTheme : "dark";
 root.setAttribute("data-theme", initialTheme);
+if (!isAdminThemePage) {
+    try { localStorage.setItem("theme", "dark"); } catch (e) {}
+}
 
 function updateThemeToggleLabels() {
     document.querySelectorAll(".theme-toggle").forEach(button => {
@@ -31,6 +36,7 @@ function setupThemeToggles() {
 document.addEventListener("DOMContentLoaded", () => {
     setupThemeToggles();
     setupMobileNavigation();
+    setupScrollTopButton();
     buildArticleToc();
     enhanceCodeBlocks();
     setupLikeButtons();
@@ -256,4 +262,22 @@ function setupMobileNavigation() {
             closeMenu();
         }
     });
+}
+
+
+function setupScrollTopButton() {
+    const button = document.getElementById("scrollTopButton");
+    if (!button) return;
+
+    const updateVisibility = () => {
+        const show = window.scrollY > 420;
+        button.classList.toggle("is-visible", show);
+    };
+
+    button.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    updateVisibility();
+    window.addEventListener("scroll", updateVisibility, { passive: true });
 }
