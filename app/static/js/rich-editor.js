@@ -232,15 +232,29 @@ function focusEditor(editor) {
 function applyInlineStyle(editor, styles) {
     focusEditor(editor);
 
-    const selected = getSelectionHtml();
-    const text = getSelectionText();
-    if (!selected && !text) return;
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount || selection.isCollapsed) return;
+
+    const range = selection.getRangeAt(0);
+    const extracted = range.extractContents();
+    const inspector = document.createElement("div");
+    inspector.appendChild(extracted.cloneNode(true));
 
     const styleText = Object.entries(styles)
         .map(([key, value]) => `${key}: ${escapeAttr(value)}`)
         .join("; ");
 
-    document.execCommand("insertHTML", false, `<span style="${styleText}">${selected || escapeHtml(text)}</span>`);
+    const hasBlockContent = /<(address|article|aside|blockquote|div|figcaption|figure|footer|h1|h2|h3|h4|h5|h6|header|hr|li|nav|ol|p|pre|section|table|tbody|td|th|thead|tr|ul)/i.test(inspector.innerHTML);
+    const wrapper = document.createElement(hasBlockContent ? "div" : "span");
+    wrapper.setAttribute("style", styleText);
+    wrapper.appendChild(extracted);
+
+    range.insertNode(wrapper);
+    selection.removeAllRanges();
+
+    const newRange = document.createRange();
+    newRange.selectNodeContents(wrapper);
+    selection.addRange(newRange);
 }
 
 function setLinkSafety() {

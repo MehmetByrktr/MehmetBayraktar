@@ -6,6 +6,7 @@ from flask import Flask, abort, render_template, request, session, send_from_dir
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from sqlalchemy import text
+from sqlalchemy.pool import NullPool
 
 try:
     from dotenv import load_dotenv
@@ -49,6 +50,49 @@ def ensure_writable_directory(path, fallback):
     except OSError:
         fallback.mkdir(parents=True, exist_ok=True)
         return fallback
+
+
+
+def build_sqlalchemy_engine_options(database_url):
+    """Render + Supabase SSL bağlantılarında stale pooled connection hatasını azaltır.
+
+    Supabase pooler ile düşük trafikli Flask uygulamasında uygulama içi connection
+    pool'u kapatmak en güvenli seçenektir. Böylece Render uyku/uyanma veya Googlebot
+    gibi ani isteklerde eski SSL soketi yeniden kullanılmaz.
+    """
+    if not database_url:
+        return {"pool_pre_ping": True}
+
+    use_null_pool = os.environ.get("DB_NULLPOOL", "1") != "0"
+    if use_null_pool:
+        return {
+            "poolclass": NullPool,
+            "pool_pre_ping": True,
+            "connect_args": {
+                "sslmode": os.environ.get("DB_SSLMODE", "require"),
+                "connect_timeout": int(os.environ.get("DB_CONNECT_TIMEOUT", "10")),
+                "keepalives": 1,
+                "keepalives_idle": 30,
+                "keepalives_interval": 10,
+                "keepalives_count": 5,
+            },
+        }
+
+    return {
+        "pool_pre_ping": True,
+        "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", "120")),
+        "pool_size": int(os.environ.get("DB_POOL_SIZE", "2")),
+        "max_overflow": int(os.environ.get("DB_MAX_OVERFLOW", "2")),
+        "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", "30")),
+        "connect_args": {
+            "sslmode": os.environ.get("DB_SSLMODE", "require"),
+            "connect_timeout": int(os.environ.get("DB_CONNECT_TIMEOUT", "10")),
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
+        },
+    }
 
 
 
@@ -109,7 +153,7 @@ def create_app():
     app.config["SECRET_KEY"] = secret_key
     app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = build_sqlalchemy_engine_options(database_url)
     app.config["MAX_CONTENT_LENGTH"] = int(os.environ.get("MAX_UPLOAD_MB", "6")) * 1024 * 1024
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"

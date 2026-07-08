@@ -8263,36 +8263,3 @@ button#themeToggle.theme-toggle,
     gap: 12px;
     margin-top: 24px;
 }
-
-
-/* =========================================================
-   CONTACT EMAIL OVERFLOW FIX
-   - uzun e-posta karttan taşmasın
-   ========================================================= */
-
-.contact-icon-grid {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-}
-
-.contact-tile-mini {
-    min-width: 0 !important;
-    overflow: hidden !important;
-    grid-template-columns: 42px minmax(0, 1fr) !important;
-}
-
-.contact-tile-mini strong,
-.contact-tile-mini em {
-    min-width: 0 !important;
-    max-width: 100% !important;
-}
-
-.contact-tile-mini em {
-    display: block !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-    line-height: 1.45 !important;
-    font-size: clamp(.74rem, 1.4vw, .82rem) !important;
-}
