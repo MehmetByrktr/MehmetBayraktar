@@ -16,6 +16,7 @@
     <link rel="icon" href="{{ media_url(site.favicon_image) }}">
     {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/final-polish.css') }}">
 </head>
 <body class="arik-theme">
     <div class="ambient-bg" aria-hidden="true">
@@ -56,7 +57,13 @@
                 <span>{{ site.site_name }}</span>
             </a>
 
-            <div class="nav-links">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-label="Menüyü aç" aria-controls="primaryNav" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav-links" id="primaryNav">
                 <a href="{{ url_for('main.home') }}">Ana Sayfa</a>
                 <a href="{{ url_for('main.blog_list') }}">Blog</a>
                 <a href="{{ url_for('main.project_list') }}">Projeler</a>

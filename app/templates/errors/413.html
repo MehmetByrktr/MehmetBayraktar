@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Dosya çok büyük | {{ site.site_name }}{% endblock %}
+{% block meta_description %}Yüklenen dosya izin verilen boyutu aşıyor.{% endblock %}
+
+{% block content %}
+<section class="detail glass legal-page error-page">
+    <span class="eyebrow">413</span>
+    <h1>Yüklediğin dosya çok büyük.</h1>
+    <p class="lead">Görsel yüklerken izin verilen boyut sınırı aşıldı. Lütfen daha küçük bir dosya seçip tekrar dene.</p>
+
+    <div class="error-actions">
+        <a class="btn primary" href="{{ url_for('main.home') }}">Ana Sayfaya Dön</a>
+    </div>
+</section>
+{% endblock %}

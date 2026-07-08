@@ -67,6 +67,9 @@
                {% if post.cover_image %}
                style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ media_url(post.cover_image) }}');"
                {% endif %}>
+                {% if post.cover_image %}
+                    <img class="work-cover-img" src="{{ media_url(post.cover_image) }}" alt="{{ post.title }}" loading="lazy">
+                {% endif %}
                 <span>{{ post.category }}</span>
             </a>
             <div class="work-caption">
@@ -100,6 +103,9 @@
                {% if project.cover_image %}
                style="background-image: linear-gradient(180deg, rgba(10,8,6,.12), rgba(10,8,6,.48)), url('{{ media_url(project.cover_image) }}');"
                {% endif %}>
+                {% if project.cover_image %}
+                    <img class="work-cover-img" src="{{ media_url(project.cover_image) }}" alt="{{ project.title }}" loading="lazy">
+                {% endif %}
                 <span>Project</span>
             </a>
             <div class="work-caption">

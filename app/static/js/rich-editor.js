@@ -1,9 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const textareas = document.querySelectorAll("textarea.rich-editor");
-
-    textareas.forEach((textarea, index) => {
+    document.querySelectorAll("textarea.rich-editor").forEach((textarea, index) => {
         createRichEditor(textarea, index);
     });
+
+    setupLiveImagePreview();
+    setupConfirmButtons();
 });
 
 function createRichEditor(textarea, index) {
@@ -20,9 +21,38 @@ function createRichEditor(textarea, index) {
             <option value="h4">Başlık 4</option>
         </select>
 
+        <select class="font-select" title="Font tipi">
+            <option value="">Font</option>
+            <option value="Inter, Arial, sans-serif">Inter</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="'Times New Roman', serif">Times New Roman</option>
+            <option value="'Courier New', monospace">Courier New</option>
+        </select>
+
+        <select class="font-size-select" title="Font boyutu">
+            <option value="">Boyut</option>
+            <option value="0.85rem">Küçük</option>
+            <option value="1rem">Normal</option>
+            <option value="1.18rem">Büyük</option>
+            <option value="1.45rem">Başlık</option>
+        </select>
+
+        <label class="color-tool" title="Yazı rengi">A <input type="color" class="text-color-input" value="#f4f2ec"></label>
+        <label class="color-tool" title="Arka plan rengi">BG <input type="color" class="bg-color-input" value="#2a2c2c"></label>
+
+        <span class="toolbar-separator"></span>
+
         <button type="button" data-cmd="bold" title="Kalın"><b>B</b></button>
         <button type="button" data-cmd="italic" title="İtalik"><i>I</i></button>
         <button type="button" data-cmd="underline" title="Altı çizili"><u>U</u></button>
+        <button type="button" data-cmd="strikeThrough" title="Üstü çizili"><s>S</s></button>
+
+        <span class="toolbar-separator"></span>
+
+        <button type="button" data-cmd="justifyLeft" title="Sola hizala">Sol</button>
+        <button type="button" data-cmd="justifyCenter" title="Ortala">Orta</button>
+        <button type="button" data-cmd="justifyRight" title="Sağa hizala">Sağ</button>
 
         <span class="toolbar-separator"></span>
 
@@ -30,6 +60,7 @@ function createRichEditor(textarea, index) {
         <button type="button" data-cmd="insertOrderedList" title="Numaralı liste">1. Liste</button>
         <button type="button" data-action="quote" title="Alıntı">Alıntı</button>
         <button type="button" data-action="code" title="Kod bloğu">&lt;/&gt; Kod</button>
+        <button type="button" data-action="hr" title="Ayırıcı çizgi">Çizgi</button>
 
         <span class="toolbar-separator"></span>
 
@@ -39,6 +70,8 @@ function createRichEditor(textarea, index) {
 
         <span class="toolbar-separator"></span>
 
+        <button type="button" data-cmd="undo" title="Geri al">↶</button>
+        <button type="button" data-cmd="redo" title="İleri al">↷</button>
         <button type="button" data-action="removeFormat" title="Biçimi temizle">Temizle</button>
         <button type="button" data-action="source" title="HTML kaynak">HTML</button>
     `;
@@ -74,19 +107,43 @@ function createRichEditor(textarea, index) {
     editor.addEventListener("input", syncToTextarea);
     editor.addEventListener("blur", syncToTextarea);
 
-    toolbar.querySelector(".format-select").addEventListener("change", (event) => {
+    const command = (cmd, value = null) => {
         focusEditor(editor);
-        const tag = event.target.value;
-        document.execCommand("formatBlock", false, tag);
+        document.execCommand("styleWithCSS", false, true);
+        document.execCommand(cmd, false, value);
+        syncToTextarea();
+    };
+
+    toolbar.querySelector(".format-select").addEventListener("change", event => {
+        command("formatBlock", event.target.value);
+    });
+
+    toolbar.querySelector(".font-select").addEventListener("change", event => {
+        const value = event.target.value;
+        if (!value) return;
+        applyInlineStyle(editor, { "font-family": value });
+        event.target.value = "";
         syncToTextarea();
     });
 
+    toolbar.querySelector(".font-size-select").addEventListener("change", event => {
+        const value = event.target.value;
+        if (!value) return;
+        applyInlineStyle(editor, { "font-size": value });
+        event.target.value = "";
+        syncToTextarea();
+    });
+
+    toolbar.querySelector(".text-color-input").addEventListener("input", event => {
+        command("foreColor", event.target.value);
+    });
+
+    toolbar.querySelector(".bg-color-input").addEventListener("input", event => {
+        command("hiliteColor", event.target.value);
+    });
+
     toolbar.querySelectorAll("[data-cmd]").forEach(button => {
-        button.addEventListener("click", () => {
-            focusEditor(editor);
-            document.execCommand(button.dataset.cmd, false, null);
-            syncToTextarea();
-        });
+        button.addEventListener("click", () => command(button.dataset.cmd));
     });
 
     toolbar.querySelectorAll("[data-action]").forEach(button => {
@@ -96,16 +153,17 @@ function createRichEditor(textarea, index) {
 
             if (action === "link") {
                 const url = prompt("Link adresi:");
-                if (url) {
+                if (url && isSafeUrl(url)) {
                     document.execCommand("createLink", false, url);
+                    setLinkSafety();
                 }
             }
 
             if (action === "image") {
                 const url = prompt("Görsel URL adresi:");
-                if (url) {
+                if (url && isSafeUrl(url)) {
                     const alt = prompt("Görsel açıklaması:", "") || "";
-                    document.execCommand("insertHTML", false, `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}">`);
+                    document.execCommand("insertHTML", false, `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" loading="lazy">`);
                 }
             }
 
@@ -126,6 +184,10 @@ function createRichEditor(textarea, index) {
                 document.execCommand("insertHTML", false, `<pre><code>${escapeHtml(code)}</code></pre><p><br></p>`);
             }
 
+            if (action === "hr") {
+                document.execCommand("insertHTML", false, "<hr><p><br></p>");
+            }
+
             if (action === "removeFormat") {
                 document.execCommand("removeFormat", false, null);
             }
@@ -138,11 +200,13 @@ function createRichEditor(textarea, index) {
                     textarea.style.display = "none";
                     editor.style.display = "block";
                     sourceHelp.style.display = "none";
+                    button.classList.remove("is-active");
                 } else {
                     syncToTextarea();
                     textarea.style.display = "block";
                     editor.style.display = "none";
                     sourceHelp.style.display = "block";
+                    button.classList.add("is-active");
                 }
             }
 
@@ -165,9 +229,36 @@ function focusEditor(editor) {
     editor.focus();
 }
 
+function applyInlineStyle(editor, styles) {
+    focusEditor(editor);
+
+    const selected = getSelectionHtml();
+    const text = getSelectionText();
+    if (!selected && !text) return;
+
+    const styleText = Object.entries(styles)
+        .map(([key, value]) => `${key}: ${escapeAttr(value)}`)
+        .join("; ");
+
+    document.execCommand("insertHTML", false, `<span style="${styleText}">${selected || escapeHtml(text)}</span>`);
+}
+
+function setLinkSafety() {
+    document.querySelectorAll(".rich-editor-area a").forEach(link => {
+        link.setAttribute("rel", "noopener noreferrer");
+        if (link.href.startsWith("http")) {
+            link.setAttribute("target", "_blank");
+        }
+    });
+}
+
+function isSafeUrl(value) {
+    return /^(https?:\/\/|mailto:)/i.test(String(value).trim());
+}
+
 function getSelectionHtml() {
     const selection = window.getSelection();
-    if (!selection.rangeCount) return "";
+    if (!selection || !selection.rangeCount) return "";
     const container = document.createElement("div");
     for (let i = 0; i < selection.rangeCount; i++) {
         container.appendChild(selection.getRangeAt(i).cloneContents());
@@ -208,8 +299,7 @@ function escapeAttr(value) {
         .replaceAll(">", "&gt;");
 }
 
-
-document.addEventListener("DOMContentLoaded", () => {
+function setupLiveImagePreview() {
     document.querySelectorAll(".live-image-input").forEach(input => {
         input.addEventListener("change", () => {
             const targetId = input.dataset.previewTarget;
@@ -226,10 +316,9 @@ document.addEventListener("DOMContentLoaded", () => {
             reader.readAsDataURL(file);
         });
     });
-});
+}
 
-
-document.addEventListener("DOMContentLoaded", () => {
+function setupConfirmButtons() {
     document.querySelectorAll("[data-confirm]").forEach(button => {
         button.addEventListener("click", event => {
             const message = button.getAttribute("data-confirm") || "Bu işlemi yapmak istediğine emin misin?";
@@ -238,4 +327,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
-});
+}

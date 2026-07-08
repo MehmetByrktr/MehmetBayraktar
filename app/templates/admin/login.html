@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
     <title>Admin Giriş | Mühendisim</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -34,10 +35,10 @@
             {% endwith %}
 
             <label>Kullanıcı adı</label>
-            <input type="text" name="username" required>
+            <input type="text" name="username" autocomplete="username" required autofocus>
 
             <label>Şifre</label>
-            <input type="password" name="password" required>
+            <input type="password" name="password" autocomplete="current-password" required>
 
             <button class="btn primary" type="submit">Giriş</button>
         </form>

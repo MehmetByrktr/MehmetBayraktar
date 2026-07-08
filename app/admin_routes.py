@@ -4,8 +4,11 @@ from pathlib import Path
 from time import time
 from uuid import uuid4
 
+import bleach
+from bleach.css_sanitizer import CSSSanitizer
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
+from PIL import Image
 from slugify import slugify
 from sqlalchemy import or_
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -19,6 +22,48 @@ from .routes import calculate_reading_time
 admin_bp = Blueprint("admin", __name__)
 _LOGIN_ATTEMPTS = {}
 ALLOWED_UPLOAD_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+
+# Rich editor içeriği (blog/proje/hakkımda) veritabanına kaydedilmeden önce
+# bu izin listesiyle temizlenir. Şablonlarda |safe ile basılan tek içerik bu
+# alanlar olduğu için, admin hesabı ele geçirilse bile <script>, onerror= gibi
+# çalıştırılabilir içeriklerin kaydedilmesi engellenir.
+ALLOWED_CONTENT_TAGS = [
+    "p", "br", "hr", "strong", "b", "em", "i", "u", "s", "span",
+    "h2", "h3", "h4", "ul", "ol", "li", "blockquote", "pre", "code",
+    "a", "img", "table", "thead", "tbody", "tr", "th", "td", "div",
+]
+ALLOWED_CONTENT_ATTRS = {
+    "a": ["href", "title", "target", "rel"],
+    "img": ["src", "alt", "title", "loading"],
+    "*": ["class", "id", "style"],
+}
+ALLOWED_CONTENT_PROTOCOLS = ["http", "https", "mailto"]
+
+ALLOWED_CSS_SANITIZER = CSSSanitizer(
+    allowed_css_properties=[
+        "color",
+        "background-color",
+        "font-size",
+        "font-family",
+        "font-weight",
+        "font-style",
+        "text-decoration",
+        "text-align",
+        "line-height",
+    ]
+)
+
+
+def sanitize_rich_content(html):
+    cleaned = bleach.clean(
+        html or "",
+        tags=ALLOWED_CONTENT_TAGS,
+        attributes=ALLOWED_CONTENT_ATTRS,
+        protocols=ALLOWED_CONTENT_PROTOCOLS,
+        css_sanitizer=ALLOWED_CSS_SANITIZER,
+        strip=True,
+    )
+    return cleaned
 
 @admin_bp.context_processor
 def inject_admin_badges():
@@ -46,6 +91,19 @@ def save_upload(file):
     if extension not in ALLOWED_UPLOAD_EXTENSIONS:
         flash("Yalnızca JPG, PNG, WEBP veya GIF görsel yükleyebilirsin.", "danger")
         return None
+
+    # Uzantı kontrolü tek başına yeterli değil: kötü niyetli biri dosyasını
+    # "gorsel.jpg" diye adlandırıp içine farklı bir dosya türü koyabilir.
+    # Pillow ile dosyanın gerçekten açılabilir bir görsel olduğunu doğruluyoruz.
+    try:
+        file.stream.seek(0)
+        with Image.open(file.stream) as probe:
+            probe.verify()
+    except Exception:
+        flash("Dosya geçerli bir görsel değil ya da bozuk.", "danger")
+        return None
+    finally:
+        file.stream.seek(0)
 
     if cloudinary_is_configured():
         try:
@@ -129,7 +187,7 @@ def login():
     return render_template("admin/login.html")
 
 
-@admin_bp.route("/logout")
+@admin_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
@@ -241,17 +299,19 @@ def blog_new():
         slug = make_unique_slug(BlogPost, request.form.get("slug") or title)
         cover = save_upload(request.files.get("cover_image"))
 
+        clean_content = sanitize_rich_content(request.form.get("content", "").strip())
+
         post = BlogPost(
             title=title,
             slug=slug,
             summary=request.form.get("summary", "").strip(),
-            content=request.form.get("content", "").strip(),
+            content=clean_content,
             cover_image=cover,
             category=request.form.get("category", "Genel").strip(),
             tags=request.form.get("tags", "").strip(),
             status=request.form.get("status", "draft"),
             meta_description=request.form.get("meta_description", "").strip(),
-            reading_time=calculate_reading_time(request.form.get("content", "")),
+            reading_time=calculate_reading_time(clean_content),
             is_featured=bool(request.form.get("is_featured"))
         )
         db.session.add(post)
@@ -271,7 +331,7 @@ def blog_edit(post_id):
         post.title = request.form.get("title", "").strip()
         post.slug = make_unique_slug(BlogPost, request.form.get("slug") or post.title, current_id=post.id)
         post.summary = request.form.get("summary", "").strip()
-        post.content = request.form.get("content", "").strip()
+        post.content = sanitize_rich_content(request.form.get("content", "").strip())
         post.category = request.form.get("category", "Genel").strip()
         post.tags = request.form.get("tags", "").strip()
         post.status = request.form.get("status", "draft")
@@ -356,18 +416,20 @@ def project_new():
         slug = make_unique_slug(Project, request.form.get("slug") or title)
         cover = save_upload(request.files.get("cover_image"))
 
+        clean_content = sanitize_rich_content(request.form.get("content", "").strip())
+
         project = Project(
             title=title,
             slug=slug,
             summary=request.form.get("summary", "").strip(),
-            content=request.form.get("content", "").strip(),
+            content=clean_content,
             cover_image=cover,
             technologies=request.form.get("technologies", "").strip(),
             github_url=request.form.get("github_url", "").strip(),
             demo_url=request.form.get("demo_url", "").strip(),
             status=request.form.get("status", "draft"),
             meta_description=request.form.get("meta_description", "").strip(),
-            reading_time=calculate_reading_time(request.form.get("content", "")),
+            reading_time=calculate_reading_time(clean_content),
             is_featured=bool(request.form.get("is_featured"))
         )
         db.session.add(project)
@@ -387,7 +449,7 @@ def project_edit(project_id):
         project.title = request.form.get("title", "").strip()
         project.slug = make_unique_slug(Project, request.form.get("slug") or project.title, current_id=project.id)
         project.summary = request.form.get("summary", "").strip()
-        project.content = request.form.get("content", "").strip()
+        project.content = sanitize_rich_content(request.form.get("content", "").strip())
         project.technologies = request.form.get("technologies", "").strip()
         project.github_url = request.form.get("github_url", "").strip()
         project.demo_url = request.form.get("demo_url", "").strip()
@@ -497,6 +559,8 @@ def settings():
     if request.method == "POST":
         for key in editable_keys:
             value = request.form.get(key, "").strip()
+            if key == "about_content":
+                value = sanitize_rich_content(value)
             item = SiteSetting.query.filter_by(key=key).first()
             if item:
                 item.value = value

@@ -30,6 +30,7 @@ function setupThemeToggles() {
 // V11: İçindekiler, kod renklendirme, beğeni
 document.addEventListener("DOMContentLoaded", () => {
     setupThemeToggles();
+    setupMobileNavigation();
     buildArticleToc();
     enhanceCodeBlocks();
     setupLikeButtons();
@@ -209,5 +210,50 @@ function setupMessageDialogs() {
                 dialog.close();
             }
         });
+    });
+}
+
+
+function setupMobileNavigation() {
+    const topbar = document.querySelector(".topbar");
+    const toggle = document.getElementById("mobileNavToggle");
+    const nav = document.getElementById("primaryNav");
+
+    if (!topbar || !toggle || !nav) return;
+
+    const closeMenu = () => {
+        topbar.classList.remove("nav-open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("mobile-nav-open");
+    };
+
+    const openMenu = () => {
+        topbar.classList.add("nav-open");
+        toggle.setAttribute("aria-expanded", "true");
+        document.body.classList.add("mobile-nav-open");
+    };
+
+    toggle.addEventListener("click", () => {
+        if (topbar.classList.contains("nav-open")) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    nav.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener("click", event => {
+        if (!topbar.contains(event.target)) {
+            closeMenu();
+        }
     });
 }

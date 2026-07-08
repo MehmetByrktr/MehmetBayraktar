@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Sayfa bulunamadı | {{ site.site_name }}{% endblock %}
+{% block meta_description %}Aradığın sayfa bulunamadı.{% endblock %}
+
+{% block content %}
+<section class="detail glass legal-page error-page">
+    <span class="eyebrow">404</span>
+    <h1>Bu sayfa artık burada değil.</h1>
+    <p class="lead">Aradığın içerik taşınmış, silinmiş ya da hiç var olmamış olabilir. Adresi kontrol et ya da aşağıdaki bağlantılarla devam et.</p>
+
+    <div class="error-actions">
+        <a class="btn primary" href="{{ url_for('main.home') }}">Ana Sayfaya Dön</a>
+        <a class="btn ghost" href="{{ url_for('main.blog_list') }}">Blog Yazıları</a>
+        <a class="btn ghost" href="{{ url_for('main.project_list') }}">Projeler</a>
+    </div>
+</section>
+{% endblock %}

@@ -30,6 +30,9 @@
                  {% if project.cover_image %}
                  style="background-image: linear-gradient(180deg, rgba(5,12,23,.10), rgba(5,12,23,.35)), url('{{ media_url(project.cover_image) }}');"
                  {% endif %}>
+                {% if project.cover_image %}
+                    <img class="card-cover-img" src="{{ media_url(project.cover_image) }}" alt="{{ project.title }}" loading="lazy">
+                {% endif %}
                 <span>Project</span>
             </div>
             <div class="card-body">

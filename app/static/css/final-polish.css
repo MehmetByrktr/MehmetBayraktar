@@ -1,0 +1,382 @@
+/* =========================================================
+   FINAL POLISH V33
+   Bu dosya yeni/son rötuşları ana style.css'i büyütmeden toplar.
+   ========================================================= */
+
+/* Uploaded cover image fix */
+.work-image,
+.card-image {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.work-cover-img,
+.card-cover-img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    z-index: 0 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+.work-image::before,
+.card-image::before {
+    z-index: 1 !important;
+}
+
+.work-image span,
+.card-image span {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* If cover exists, keep overlay premium but not black-out */
+.arik-work-card.has-image .work-image::before,
+.card-image.image-cover::before {
+    background:
+        linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.18) 46%, rgba(0,0,0,.58) 100%),
+        radial-gradient(circle at 50% 50%, transparent, rgba(0,0,0,.16)) !important;
+}
+
+/* Public hamburger navigation */
+.mobile-nav-toggle {
+    display: none;
+}
+
+@media (max-width: 760px) {
+    .topbar {
+        position: sticky !important;
+        top: 10px !important;
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 12px !important;
+        overflow: visible !important;
+        border-radius: 22px !important;
+    }
+
+    .topbar .brand {
+        min-width: 0 !important;
+        grid-column: 1 / 2 !important;
+    }
+
+    .topbar .brand > span:not(.brand-mark) {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    .mobile-nav-toggle {
+        grid-column: 2 / 3 !important;
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 999px !important;
+        border: 1px solid rgba(255,255,255,.11) !important;
+        background: rgba(255,255,255,.055) !important;
+        color: var(--heading) !important;
+        display: grid !important;
+        place-items: center !important;
+        gap: 4px !important;
+        padding: 10px !important;
+        cursor: pointer !important;
+        box-shadow: none !important;
+    }
+
+    .mobile-nav-toggle span {
+        width: 18px !important;
+        height: 2px !important;
+        border-radius: 99px !important;
+        background: currentColor !important;
+        display: block !important;
+        transition: transform .22s ease, opacity .22s ease !important;
+    }
+
+    .topbar.nav-open .mobile-nav-toggle span:nth-child(1) {
+        transform: translateY(6px) rotate(45deg) !important;
+    }
+
+    .topbar.nav-open .mobile-nav-toggle span:nth-child(2) {
+        opacity: 0 !important;
+    }
+
+    .topbar.nav-open .mobile-nav-toggle span:nth-child(3) {
+        transform: translateY(-6px) rotate(-45deg) !important;
+    }
+
+    .topbar .nav-links {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        transform: translateY(-6px) !important;
+        pointer-events: none !important;
+        transition: max-height .28s ease, opacity .20s ease, transform .20s ease, padding .20s ease !important;
+        scrollbar-width: none !important;
+    }
+
+    .topbar.nav-open .nav-links {
+        max-height: 360px !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        pointer-events: auto !important;
+        padding-top: 8px !important;
+    }
+
+    .topbar .nav-links a {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 13px 14px !important;
+        border-radius: 16px !important;
+        font-size: .82rem !important;
+        letter-spacing: .12em !important;
+        text-transform: uppercase !important;
+        background: rgba(255,255,255,.045) !important;
+        border: 1px solid rgba(255,255,255,.075) !important;
+        white-space: nowrap !important;
+    }
+
+    .topbar .nav-links a::after {
+        content: "→";
+        opacity: .42;
+        font-size: .9rem;
+    }
+
+    .arik-hero {
+        margin-top: 14px !important;
+        min-height: auto !important;
+        display: block !important;
+        padding: 48px 18px 34px !important;
+        border-radius: 22px !important;
+    }
+
+    .arik-hero-topline {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 auto 36px !important;
+        text-align: center !important;
+        font-size: .66rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .arik-hero-content {
+        margin: 0 auto !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .arik-hero-content h1 {
+        font-size: clamp(2.45rem, 14vw, 4.25rem) !important;
+        line-height: .88 !important;
+        margin: 0 0 18px !important;
+    }
+
+    .arik-hero-content p {
+        width: min(100%, 34rem) !important;
+        font-size: .9rem !important;
+        line-height: 1.6 !important;
+    }
+
+    .hero-mini-action {
+        margin-top: 22px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .personal-card-row {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        margin: 16px auto 46px !important;
+    }
+
+    .personal-card {
+        min-height: 0 !important;
+        padding: 18px !important;
+        border-radius: 18px !important;
+    }
+
+    .arik-work-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        margin-bottom: 48px !important;
+    }
+
+    .work-image {
+        height: 190px !important;
+        border-radius: 18px 18px 0 0 !important;
+    }
+
+    .work-caption {
+        min-height: 0 !important;
+        border-radius: 0 0 18px 18px !important;
+    }
+
+    .upgraded-footer {
+        grid-template-columns: 1fr !important;
+        gap: 22px !important;
+        padding: 22px !important;
+        margin-top: 28px !important;
+        border-radius: 22px !important;
+    }
+
+    .upgraded-footer .footer-about p {
+        font-size: .9rem !important;
+        line-height: 1.55 !important;
+    }
+
+    .upgraded-footer .footer-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .upgraded-footer .footer-links h3 {
+        grid-column: 1 / -1 !important;
+    }
+
+    .upgraded-footer .footer-links a {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 10px !important;
+        font-size: .84rem !important;
+        background: rgba(255,255,255,.04) !important;
+        border: 1px solid rgba(255,255,255,.07) !important;
+    }
+
+    .upgraded-footer .footer-social {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    .upgraded-footer .footer-social h3 {
+        grid-column: 1 / -1 !important;
+    }
+
+    .upgraded-footer .footer-social-link {
+        width: 100% !important;
+        display: grid !important;
+        justify-items: center !important;
+        gap: 7px !important;
+        padding: 10px 8px !important;
+        border-radius: 18px !important;
+        text-align: center !important;
+        font-size: .78rem !important;
+        background: rgba(255,255,255,.04) !important;
+        border: 1px solid rgba(255,255,255,.07) !important;
+    }
+
+    .upgraded-footer .text-social {
+        padding-left: 8px !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .shell {
+        width: min(100% - 18px, 1180px) !important;
+    }
+
+    .arik-hero {
+        padding: 42px 14px 28px !important;
+    }
+
+    .upgraded-footer .footer-social {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* Admin logout POST form looks like previous sidebar link */
+.sidebar-logout-form {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.sidebar-logout-form .logout-link {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    text-align: left !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    padding: 11px 12px !important;
+    background: transparent !important;
+    color: inherit !important;
+    font: inherit !important;
+    cursor: pointer !important;
+}
+
+.sidebar-logout-form .logout-link:hover {
+    background: rgba(255,255,255,.075) !important;
+    color: #ffffff !important;
+}
+
+/* Rich editor upgraded controls */
+.rich-toolbar {
+    align-items: center !important;
+}
+
+.rich-toolbar select {
+    min-height: 34px !important;
+    width: auto !important;
+    max-width: 150px !important;
+    border-radius: 12px !important;
+    padding: 0 10px !important;
+    font-size: .82rem !important;
+}
+
+.rich-toolbar .color-tool {
+    min-height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 8px !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,.055) !important;
+    border: 1px solid rgba(255,255,255,.09) !important;
+    color: var(--muted) !important;
+    font-size: .76rem !important;
+    font-weight: 800 !important;
+}
+
+.rich-toolbar .color-tool input {
+    width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+}
+
+.rich-toolbar button.is-active {
+    background: rgba(255,255,255,.16) !important;
+    color: var(--heading) !important;
+}
+
+.rich-editor-area [style] {
+    max-width: 100%;
+}
+
+.rich-editor-area img,
+.article-content img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 14px !important;
+    display: block !important;
+    margin: 16px auto !important;
+}

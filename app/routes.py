@@ -2,6 +2,7 @@ import math
 import re
 from html import unescape
 from datetime import datetime
+from time import time
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from sqlalchemy import or_
 
@@ -10,6 +11,23 @@ from .models import BlogPost, Project, Message
 
 
 main_bp = Blueprint("main", __name__)
+
+# İletişim formu için basit IP bazlı hız sınırlama (spam/kötüye kullanım önleme).
+# Honeypot alanı botların büyük kısmını zaten eler; bu, kalan senaryolar için ek katman.
+_CONTACT_ATTEMPTS = {}
+_CONTACT_WINDOW_SECONDS = 10 * 60
+_CONTACT_MAX_PER_WINDOW = 5
+
+
+def contact_rate_limited(client_key):
+    now = time()
+    history = [t for t in _CONTACT_ATTEMPTS.get(client_key, []) if now - t < _CONTACT_WINDOW_SECONDS]
+    _CONTACT_ATTEMPTS[client_key] = history
+    return len(history) >= _CONTACT_MAX_PER_WINDOW
+
+
+def register_contact_attempt(client_key):
+    _CONTACT_ATTEMPTS.setdefault(client_key, []).append(time())
 
 
 
@@ -180,9 +198,17 @@ def about():
 @main_bp.route("/iletisim", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
+        client_key = request.headers.get("X-Forwarded-For", request.remote_addr or "local").split(",")[0].strip()
+
         # Botlara karşı görünmez honeypot alanı.
         if request.form.get("website", "").strip():
             return redirect(url_for("main.contact"))
+
+        if contact_rate_limited(client_key):
+            flash("Kısa sürede çok fazla mesaj gönderildi. Lütfen biraz sonra tekrar dene.", "danger")
+            return redirect(url_for("main.contact"))
+
+        register_contact_attempt(client_key)
 
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
@@ -311,5 +337,5 @@ def sitemap():
 @main_bp.route("/robots.txt")
 def robots():
     sitemap_url = url_for("main.sitemap", _external=True)
-    content = f"User-agent: *\nAllow: /\nSitemap: {sitemap_url}\n"
+    content = f"User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: {sitemap_url}\n"
     return content, 200, {"Content-Type": "text/plain; charset=utf-8"}

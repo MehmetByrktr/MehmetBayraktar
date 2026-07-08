@@ -2,7 +2,7 @@ import os
 import secrets
 from pathlib import Path
 
-from flask import Flask, abort, request, session, send_from_directory, url_for
+from flask import Flask, abort, render_template, request, session, send_from_directory, url_for
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from sqlalchemy import text
@@ -89,7 +89,24 @@ def create_app():
     if not cloudinary_is_configured():
         uploads_dir = ensure_writable_directory(uploads_dir, fallback_data_dir / "uploads")
 
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
+    is_debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+
+    secret_key = os.environ.get("SECRET_KEY", "")
+    if not secret_key:
+        if is_debug:
+            secret_key = "dev-secret-key-change-me"
+        else:
+            # Prod'da SECRET_KEY unutulursa sessizce zayıf anahtarla açılmak yerine
+            # rastgele güvenli bir anahtar üretilir. Bu anahtar restart'ta değişir,
+            # yani oturumlar restart sonrası geçersiz kalır -- bu yüzden gerçek
+            # deploymentta SECRET_KEY'i env'e eklemek şart.
+            secret_key = secrets.token_hex(32)
+            app.logger.warning(
+                "SECRET_KEY env değişkeni tanımlı değil. Geçici rastgele bir anahtar "
+                "üretildi; kalıcı oturumlar için Render/host ortamına SECRET_KEY eklemelisin."
+            )
+
+    app.config["SECRET_KEY"] = secret_key
     app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
@@ -118,16 +135,36 @@ def create_app():
         }
 
     def media_url(value):
+        """Admin'den yüklenen görselleri güvenli ve esnek şekilde URL'e çevirir.
+
+        Desteklenen kayıt biçimleri:
+        - https://res.cloudinary.com/...  -> aynen döner
+        - uploads/foo.jpg                 -> /uploads/foo.jpg
+        - /uploads/foo.jpg                -> aynen döner
+        - static/uploads/foo.jpg          -> /uploads/foo.jpg
+        - app/static/uploads/foo.jpg      -> /uploads/foo.jpg
+        - css/style.css gibi statik dosya -> /static/css/style.css
+        """
         if not value:
             return ""
 
-        value = str(value)
+        value = str(value).strip().replace("\\", "/")
         if value.startswith(("http://", "https://", "data:")):
             return value
+
+        if value.startswith("/uploads/") or value.startswith("/static/"):
+            return value
+
+        for prefix in ("app/static/", "static/"):
+            if value.startswith(prefix):
+                value = value[len(prefix):]
 
         upload_prefix = str(app.config.get("UPLOAD_URL_PREFIX", "uploads")).strip("/")
         if upload_prefix and value.startswith(f"{upload_prefix}/"):
             return url_for("uploaded_file", filename=value.split("/", 1)[1])
+
+        if "/uploads/" in value:
+            return url_for("uploaded_file", filename=value.split("/uploads/", 1)[1])
 
         return url_for("static", filename=value)
 
@@ -163,9 +200,40 @@ def create_app():
         response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        # Site kendi CSS/JS'i dışında hiçbir harici kaynak yüklemiyor; script-src'yi 'self'
+        # ile kısıtlamak, admin panelinden (rich editor "HTML kaynak" modu) yanlışlıkla ya da
+        # bir hesap ele geçirilmesi durumunda kaydedilebilecek <script> enjeksiyonlarının
+        # tarayıcıda çalışmasını engeller (stored XSS'e karşı ek katman).
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; "
+            "script-src 'self'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: https:; "
+            "font-src 'self'; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "frame-ancestors 'self'"
+        )
         if request.is_secure:
             response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         return response
+
+    @app.errorhandler(404)
+    def handle_404(error):
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(403)
+    def handle_403(error):
+        return render_template("errors/403.html"), 403
+
+    @app.errorhandler(413)
+    def handle_413(error):
+        return render_template("errors/413.html"), 413
+
+    @app.errorhandler(500)
+    def handle_500(error):
+        return render_template("errors/500.html"), 500
 
     with app.app_context():
         db.create_all()
@@ -259,8 +327,25 @@ def migrate_database():
 
 
 def seed_database():
+    from flask import current_app
+
     admin_username = os.environ.get("ADMIN_USERNAME", "admin")
-    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    admin_password = os.environ.get("ADMIN_PASSWORD", "")
+    is_debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+
+    if not admin_password:
+        if is_debug:
+            admin_password = "admin123"
+        else:
+            # Prod'da ADMIN_PASSWORD unutulmuşsa "admin123" ile canlıya çıkmak yerine
+            # rastgele güçlü bir şifre üretip loglara bir kereliğine yazıyoruz.
+            admin_password = secrets.token_urlsafe(12)
+            current_app.logger.warning(
+                "ADMIN_PASSWORD env değişkeni tanımlı değil. Geçici admin şifresi "
+                "üretildi: %s -- lütfen giriş yaptıktan sonra Hesap sayfasından "
+                "değiştir ve host ortamına ADMIN_PASSWORD ekle.",
+                admin_password,
+            )
 
     if not User.query.filter_by(username=admin_username).first():
         user = User(
