@@ -654,3 +654,81 @@ body.arik-theme #themeToggle {
         min-height: auto !important;
     }
 }
+
+
+/* =========================================================
+   V-NAV — Navbar only requested fixes
+   - Navbar transparent
+   - Not sticky on scroll
+   - Contact link same style as other nav links
+   - Navbar width aligned with content/hero box
+   ========================================================= */
+
+.topbar,
+.topbar.glass,
+[data-theme="light"] .topbar,
+[data-theme="light"] .topbar.glass {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 28px 0 !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 20 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* İletişim tuşu diğer menü yazılarıyla aynı görünsün */
+.nav-links a:last-child,
+.topbar .nav-links a:last-child,
+[data-theme="light"] .nav-links a:last-child,
+[data-theme="light"] .topbar .nav-links a:last-child {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: rgba(215,208,195,.54) !important;
+}
+
+/* Light modda da İletişim diğer nav yazılarıyla aynı */
+[data-theme="light"] .nav-links a:last-child,
+[data-theme="light"] .topbar .nav-links a:last-child {
+    color: rgba(17,19,19,.72) !important;
+}
+
+/* Hover davranışı diğer nav linkleriyle aynı kalsın */
+.nav-links a:last-child:hover,
+.topbar .nav-links a:last-child:hover {
+    background: rgba(239,229,214,.07) !important;
+    color: var(--heading) !important;
+}
+
+[data-theme="light"] .nav-links a:last-child:hover,
+[data-theme="light"] .topbar .nav-links a:last-child:hover {
+    background: rgba(17,19,19,.06) !important;
+    color: #000 !important;
+}
+
+/* Mobilde de sticky olmasın */
+@media (max-width: 760px) {
+    .topbar,
+    .topbar.glass,
+    [data-theme="light"] .topbar,
+    [data-theme="light"] .topbar.glass {
+        position: relative !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 20px 0 !important;
+        background: transparent !important;
+        background-image: none !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+}
